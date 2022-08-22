@@ -1,0 +1,14 @@
+py pip -m install pyautogui
+py pip -m install selenium
+py pip -m install colorama
+py pip -m install mysql.connector
+py pip -m install soundcard
+py pip -m install numpy
+py pip -m install pandas
+py pip -m install matplotlib
+py pip -m install seaborn
+py pip -m install glob
+py pip -m install libroas
+py pip -m install IPython
+py pip -m install itertools
+py pip -m install tensorflow
