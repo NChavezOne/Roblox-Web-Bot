@@ -121,6 +121,7 @@ def testAudioAndFiles():
 
 if __name__ == "__main__":
     
+    print("Hello world!")
     print("Audio script is running as main!")
     getCorrectMic()
     while(1):
