@@ -18,7 +18,10 @@ from pydub import AudioSegment
 #For playing audio files
 
 from glob import glob
-from pydub.playback import play
+
+#Replaced from pyDub for portability
+from playsound import playsound
+
 import threading
 import io
 
@@ -41,7 +44,7 @@ print("The microphones on this system")
 print(mics)
 # Set the microphone for recording.
 global default_mic
-default_mic = mics[3] #Default for my desktop computer -Nicholas
+default_mic = mics[0] #Default for my desktop computer is 3, but set it to 0 for compatibility -Nicholas
 
 def print_to_string(*args, **kwargs):
     output = io.StringIO()
@@ -57,7 +60,7 @@ def getCorrectMic():
     #The purpose of this function is to get the correct audio recording device for the client
     print("Attempting to get the correct mic!")
     audio_files = glob('Test Audio/*.wav')
-    song = AudioSegment.from_wav(r"Test Audio/sample-crowd.wav")
+    song = r"Test Audio/sample-crowd.wav"
     files = list()
     z = 0
     global default_mic
@@ -65,7 +68,7 @@ def getCorrectMic():
     for x in mics:
         default_mic = mics[z]
         time.sleep(0.5)
-        t1 = threading.Thread(target=play,args=(song,))
+        t1 = threading.Thread(target=playsound,args=(song,))
         t1.start()
         information = recordAudio(3)
         createFileFromData(r"Test Audio/",information,str(z),"wav")
@@ -111,7 +114,7 @@ def createFileFromData(exportDirectory, data, filename, file_format):
 
 def testAudioAndFiles():
     global default_mic
-    default_mic = mics[3]
+    default_mic = mics[0]
     print("Testing audio device recording.")
     data = recordAudio(2)
     playAudio(data)
