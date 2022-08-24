@@ -168,7 +168,10 @@ def validateAccount():
     MySQLConnector.insertAccount(userCreated,passCreated)
 
 def goToGroup():
-    group = MySQLConnector.getRecentGroup()
+    if (MySQLConnector.getMode() == 0):
+        group = MySQLConnector.getRecentGroup()
+    elif (MySQLConnector.getMode() == 1):
+        group = MySQLConnector.getRandomGroup()
     browser.get(group)
     browser.maximize_window()
 
