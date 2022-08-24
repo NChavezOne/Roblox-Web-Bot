@@ -587,7 +587,7 @@ if __name__ == "__main__":
     
     #Get, and then set the proper loopback for captcha audio processing
     
-    #audio.getCorrectMic()
+    audio.getCorrectMic()
     
     #Main program loop
     

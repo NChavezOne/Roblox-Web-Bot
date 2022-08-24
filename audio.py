@@ -77,9 +77,10 @@ def getCorrectMic():
             guess.append(machinelearning.predictIfCrowd(file)[0][1])
         z += 1
     print("The correct mic is ")
-    print(mics[guess.index(min(guess))])
+    myGuess = mics[guess.index(min(guess))]
+    print(myGuess)
     print("Setting correct mic.")
-    default_mic = mics[guess.index(min(guess))]
+    default_mic = myGuess
     
     
 def playAudio(data):
@@ -98,6 +99,7 @@ def recordAudio(duration=1): #records audio, duration in seconds
         #If the recording is less than 50 percent of the duration, it means the device
         #Was not a proper recording device. We need to wait.
         if (millisec2 - millisec1 < ((duration/2) * 1000)):
+            print("Not a proper Mic. Sleeping...")
             time.sleep(duration)
         print("Done.")
         print("")
@@ -114,7 +116,7 @@ def createFileFromData(exportDirectory, data, filename, file_format):
 
 def testAudioAndFiles():
     global default_mic
-    default_mic = mics[0]
+    #default_mic = mics[0]
     print("Testing audio device recording.")
     data = recordAudio(2)
     playAudio(data)
