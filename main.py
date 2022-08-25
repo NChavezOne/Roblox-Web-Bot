@@ -29,6 +29,8 @@ from selenium.common.exceptions import NoSuchElementException
 import cprint
 #machine learning
 import machinelearning
+#client connector
+import clientConnector
 #==================
 #Moved to top of script
 import numpy
@@ -306,6 +308,8 @@ def crackCaptcha(group=False):
     global firstTime
     global Captchas_Encountered
     
+    clientConnector.endPingService()
+    
     cprint.printColor("Attempting to crack captcha.","YELLOW")
     Captchas_Encountered += 1
     if (Captchas_Encountered > 20):
@@ -506,6 +510,12 @@ def crackCaptcha(group=False):
             print("Error, couldn't find fc-iframe again.")
     print("No other captchas found.")
     print("")
+    
+    try:
+        clientConnector.beginPingService()
+    except:
+        print("Couldn't restart ping service.")
+    time.sleep(0.5)
 
 def isElementPresentByID(what):
     try: browser.find_element(By.ID, what)
@@ -590,6 +600,11 @@ if __name__ == "__main__":
     audio.getCorrectMic()
     
     #Main program loop
+    
+    #Connect to the client monitoring script, and begin periodic pining
+    
+    clientConnector.connectToSQLClientService()
+    clientConnector.beginPingService()
     
     while (1):  
         #uncomment if bypassing try except block
@@ -678,4 +693,8 @@ if __name__ == "__main__":
                 browser.close()
             except:
                 print("Browser close error")
+            try:
+                clientConnector.beginPingService()
+            except:
+                print("Couldn't restart ping service.")
             time.sleep(1)

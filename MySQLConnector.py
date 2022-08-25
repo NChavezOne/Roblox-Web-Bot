@@ -3,9 +3,11 @@
 
 import mysql.connector
 import datetime
+import time
 import cprint
 
 #========================= 
+#Global Defines.
 
 global scope
 scope = False #Change depending on if inside or outside local network
@@ -26,14 +28,22 @@ mydb = mysql.connector.connect(
 global now
 now = datetime.datetime.now()
 
+global iso_time
+iso_time = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+
+global unix_time
+unix_time = int(time.time())
+
 global clientCreated
 clientCreated = True;
+
+#==================================
 
 def createNewClient(uuid, ipaddress, internalip):
     mycursor = mydb.cursor()
 
     sql = "INSERT INTO clientconnector (uuid, timecreated, lastpinged, status, ipaddress, internalip) VALUES (%s, %s, %s, %s, %s, %s)"
-    val = (uuid, str(now), str(now), str(0), ipaddress, internalip)
+    val = (uuid, iso_time, unix_time, str(0), ipaddress, internalip)
     mycursor.execute(sql, val)
 
     mydb.commit()
@@ -51,14 +61,55 @@ def checkIfClientExists(uuid, publicip, privateip):
     else:
         return False
     
-def pingClient(uuid):
+def pingClient(uuid, os_name):
     mycursor = mydb.cursor()
 
     sql = "UPDATE clientconnector SET lastpinged = %s WHERE uuid = %s"
-    val = (str(now), uuid)
+    val = (unix_time, uuid) #We are pinging in unix time, seconds.
     mycursor.execute(sql, val)
-
+    
     mydb.commit()
+    
+    sql = "UPDATE clientconnector SET osname = %s WHERE uuid = %s"
+    val = (os_name, uuid) #We are pinging in unix time, seconds.
+    mycursor.execute(sql, val)
+    
+    mydb.commit()
+
+def getLastPing(uuid):
+    mycursor = mydb.cursor()
+    
+    sql = ("SELECT lastpinged FROM clientconnector WHERE uuid = %s")
+    val = (uuid,)
+    mycursor.execute(sql, val)
+    myresult = mycursor.fetchall()
+    return myresult[0][0]
+
+def isUuidUsed(uuid):
+    mycursor = mydb.cursor()
+    sql = "SELECT * FROM clientconnector WHERE uuid = %s"
+    val = (uuid,)
+    mycursor.execute(sql, val)
+    myresult = mycursor.fetchall()
+    if (len(myresult) >= 1):
+        return True
+    else:
+        return False
+        
+def checkIfSameIP(public,local):
+    mycursor = mydb.cursor()
+    sql = "SELECT * FROM clientconnector WHERE ipaddress = %s AND internalip = %s"
+    val = (public,local)
+    mycursor.execute(sql, val)
+    myresult = mycursor.fetchall()
+    if (len(myresult) >= 1):
+        return myresult[0][0]
+    else:
+        return False
+        
+
+#Client connector end.
+#==============================
 
 def getRandomGroup():
     mycursor = mydb.cursor()
@@ -130,3 +181,4 @@ if __name__ == "__main__":
     
     print(getMode())
     print(getRandomGroup())
+    print(getLastPing("b4da690f-235f-11ed-850e-04421a0c938c"))

@@ -8,8 +8,16 @@ import socket
 
 import MySQLConnector
 
+from multiprocessing import Process
+import time
+
 #====================
 #Global defines
+global pingservice
+
+global device_name
+device_name = os.environ['COMPUTERNAME']
+
 global uuid_global
 
 global external_ip
@@ -36,18 +44,35 @@ def connectToSQLClientService():
             file.close()
             file = open(myFile,"w")
             uuid_global = genUuid()
-            print(uuid_global)
+            #print(uuid_global)
             file.write(uuid_global)
             file.close()
         else:
             uuid_global = temp
-        print("Client exists!")
+        #print("Client exists!")
         if (MySQLConnector.checkIfClientExists(uuid_global, external_ip, internal_ip) == True):
             print("Pinging client!")
-            MySQLConnector.pingClient(uuid_global)
+            MySQLConnector.pingClient(uuid_global, device_name)
+        elif (val != False):
+            val = MySQLConnector.checkIfSameIP(external_ip, internal_ip)
+            print("Pinging client!")
+            file = open(myFile,"w")
+            uuid_global = val
+            file.write(uuid_global)
+            file.close()
+            MySQLConnector.pingClient(uuid_global, device_name)
         else:
-            MySQLConnector.createNewClient(uuid_global, external_ip, internal_ip)
-            print("We've created a new client.")
+            if (MySQLConnector.isUuidUsed(uuid_global) == False()):
+                
+                MySQLConnector.createNewClient(uuid_global, external_ip, internal_ip)
+            else: 
+                file = open(myFile,"w")
+                uuid_global = genUuid()
+                #print(uuid_global)
+                file.write(uuid_global)
+                file.close()
+                MySQLConnector.createNewClient(uuid_global, external_ip, internal_ip)
+            #print("We've created a new client.")
     else:
         file = open(myFile,"w")
         uuid_global = genUuid()
@@ -55,25 +80,29 @@ def connectToSQLClientService():
         file.close()
         MySQLConnector.createNewClient(uuid_global, external_ip)
         print("We've created a new client.")
+    global pingservice
+    pingservice = Process(target=pingClient,args=(returnUuid(),),daemon=True)
     
-def pingClient():
-    MySQLConnector.pingClient(uuid_global)
-    print("Client service pinged.")
-    time.sleep(5)
-    pingClient()
+def pingClient(uuid):
+    while(1):
+        MySQLConnector.pingClient(uuid, device_name)
+        print("Client service pinged.")
+        time.sleep(5)
+        
+def beginPingService():
+    global pingservice
+    pingservice.start()
+    print("Starting pingservice.")
+    
+def endPingService():
+    global pingservice
+    pingservice.terminate()
+    print("Killing pingservice.")
+
+def returnUuid():
+    global uuid_global
+    return str(uuid_global)
 
 if __name__ == "__main__":
-    
-    import threading
-    import time
-    
-    print("clientConnector script running as main!")
-    connectToSQLClientService()
-    
-    pingservice = threading.Thread(target=pingClient,args=(),daemon=True)
-    pingservice.start()
-    
-    while (1):
-        print("Doing other stuff kek")
-        time.sleep(0.1)
-        
+
+    print("Client connector script running as main!")
