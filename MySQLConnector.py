@@ -130,7 +130,7 @@ def getMode():
 
 def getAccount():
     mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM robloxaccounts ORDER BY RAND() LIMIT 1")
+    mycursor.execute("SELECT username,password FROM robloxaccounts ORDER BY RAND() LIMIT 1")
     myresult = mycursor.fetchall()
     username = myresult[0][1]
     password = myresult[0][2]
