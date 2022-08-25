@@ -64,6 +64,9 @@ def checkIfClientExists(uuid, publicip, privateip):
 def pingClient(uuid, os_name):
     mycursor = mydb.cursor()
 
+    global unix_time
+    unix_time = int(time.time())
+
     sql = "UPDATE clientconnector SET lastpinged = %s WHERE uuid = %s"
     val = (unix_time, uuid) #We are pinging in unix time, seconds.
     mycursor.execute(sql, val)

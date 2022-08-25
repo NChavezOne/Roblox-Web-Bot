@@ -40,8 +40,8 @@ default_speaker = sc.default_speaker()
 
 # get a list of all microphones:v
 mics = sc.all_microphones(include_loopback=True)
-print("The microphones on this system")
-print(mics)
+#print("The microphones on this system")
+#print(mics)
 # Set the microphone for recording.
 global default_mic
 default_mic = mics[0] #Default for my desktop computer is 3, but set it to 0 for compatibility -Nicholas

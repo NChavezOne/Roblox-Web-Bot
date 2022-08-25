@@ -3,6 +3,7 @@
 #Started 8/2/22
 #Version 1 completed 8/15/22
 
+import os
 import sys
 import time
 import random
@@ -44,6 +45,10 @@ import PIL.ImageGrab
 
 #==================
 #Global defines
+
+global device_name
+device_name = os.environ['COMPUTERNAME']
+
 global firstCaptcha
 global captchaColor
 firstCaptcha = True
@@ -581,6 +586,16 @@ global message
 global Global_Iterations
 global Captchas_Encountered
 
+def pingClient(uuid):
+    global our_uuid
+    while(1):
+        uuid = our_uuid
+        MySQLConnector.pingClient(uuid, device_name)
+        print("Client service pinged.")
+        time.sleep(15)
+
+global our_uuid
+
 if __name__ == "__main__":
     
     #Global defines and setting
@@ -595,18 +610,23 @@ if __name__ == "__main__":
     Global_Iterations = 1
     Captchas_Encountered = 0
     
+    
+    #Connect to the client monitoring script, and begin periodic pining
+    
+    clientConnector.connectToSQLClientService()
+    global our_uuid 
+    our_uuid = clientConnector.returnUuid()
+    import threading
+    pingservice = threading.Thread(target=(pingClient),args=(our_uuid, ),daemon=True)
+    pingservice.start()
+    print("Ping service started!")
+    
     #Get, and then set the proper loopback for captcha audio processing
     
     audio.getCorrectMic()
     
     #Main program loop
-    
-    #Connect to the client monitoring script, and begin periodic pining
-    
-    clientConnector.connectToSQLClientService()
-    clientConnector.beginPingService()
-    
-    while (1):  
+    while (1): 
         #uncomment if bypassing try except block
         #if (1 == 1):
         try:

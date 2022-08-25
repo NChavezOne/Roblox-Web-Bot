@@ -50,11 +50,11 @@ def connectToSQLClientService():
         else:
             uuid_global = temp
         #print("Client exists!")
+        val = MySQLConnector.checkIfSameIP(external_ip, internal_ip)
         if (MySQLConnector.checkIfClientExists(uuid_global, external_ip, internal_ip) == True):
             print("Pinging client!")
             MySQLConnector.pingClient(uuid_global, device_name)
         elif (val != False):
-            val = MySQLConnector.checkIfSameIP(external_ip, internal_ip)
             print("Pinging client!")
             file = open(myFile,"w")
             uuid_global = val
@@ -62,7 +62,7 @@ def connectToSQLClientService():
             file.close()
             MySQLConnector.pingClient(uuid_global, device_name)
         else:
-            if (MySQLConnector.isUuidUsed(uuid_global) == False()):
+            if (MySQLConnector.isUuidUsed(uuid_global) == False):
                 
                 MySQLConnector.createNewClient(uuid_global, external_ip, internal_ip)
             else: 
@@ -101,7 +101,7 @@ def endPingService():
 
 def returnUuid():
     global uuid_global
-    return str(uuid_global)
+    return uuid_global
 
 if __name__ == "__main__":
 
