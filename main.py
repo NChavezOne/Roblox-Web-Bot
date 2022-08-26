@@ -588,9 +588,10 @@ def pingClient(uuid):
         uuid = our_uuid
         MySQLConnector.pingClient(uuid, device_name)
         print("Client service pinged.")
-        time.sleep(15)
+        time.sleep(20)
 
 global our_uuid
+global unknownErrorCount
 
 if __name__ == "__main__":
     
@@ -599,7 +600,10 @@ if __name__ == "__main__":
     global Global_Iterations
     global Captchas_Encountered
     global accountJustCreated
+    
     global unknownErrorRatelimitFlag
+    global unknownErrorCount
+    unknownErrorCount = 0
     
     unknownErrorRatelimitFlag = False
     accountJustCreated = False
@@ -613,9 +617,9 @@ if __name__ == "__main__":
     global our_uuid 
     our_uuid = clientConnector.returnUuid()
     import threading
-    #pingservice = threading.Thread(target=(pingClient),args=(our_uuid, ),daemon=True)
-    #pingservice.start()
-    #print("Ping service started!")
+    pingservice = threading.Thread(target=(pingClient),args=(our_uuid, ),daemon=True)
+    pingservice.start()
+    print("Ping service started!")
     
     #Get, and then set the proper loopback for captcha audio processing
     
@@ -651,6 +655,12 @@ if __name__ == "__main__":
             
             #If we aren't getting ratelimited, create a new account. Otherwise, use on that already exist.
             if (unknownErrorRatelimitFlag == True):
+                unknownErrorCount += 1
+                if (unknownErrorCount >= 10):
+                    print("It's been a while, lets see if we're still getting ratelimited.")
+                    unknownErrorCount = 0
+                    unknownErrorRateLimitFlag = False
+                print("We are getting ratelimited")
                 username, password = MySQLConnector.getAccount()
                 global userCreated #This isn't actually a recently created account, but we need to
                 #Define it as one so the program doesn't break

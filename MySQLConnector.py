@@ -132,8 +132,8 @@ def getAccount():
     mycursor = mydb.cursor()
     mycursor.execute("SELECT username,password FROM robloxaccounts ORDER BY RAND() LIMIT 1")
     myresult = mycursor.fetchall()
-    username = myresult[0][1]
-    password = myresult[0][2]
+    username = myresult[0][0]
+    password = myresult[0][1]
     return username, password
 
 def insertMachineLearning(messagessent,captchasuccess):
