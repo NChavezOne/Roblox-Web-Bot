@@ -154,6 +154,8 @@ def validateAccount():
                         #If we are getting ratelimited for creating accounts, let's just
                         #Switch to using accounts we've already created.
                         unknownErrorRatelimitFlag = True
+                        print("Unknown error ratelimit flag was set.")
+                        time.sleep(3)
                         breakout = (1 / 0)
         break
     checkForCaptcha()
@@ -317,12 +319,14 @@ def crackCaptcha(group=False):
     Captchas_Encountered += 1
     if (Captchas_Encountered > 20):
         print("More than 30 captchas encountered, restarting script.")
+        time.sleep(3)
         Captchas_Encountered = 0
         breakout = (1 / 0)
     print("")
     
     if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
         print("Roblox ratelimitting us.")
+        time.sleep(3)
         breakout = (2 / 0)
     
     time.sleep(2) #give the captcha some time to load.
@@ -620,8 +624,8 @@ if __name__ == "__main__":
     #Main program loop
     while (1): 
         #uncomment if bypassing try except block
-        #if (1 == 1):
-        try:
+        if (1 == 1):
+        #try:
             cprint.clearConsole()
             
             #Get the mode we are operating in.
@@ -699,7 +703,7 @@ if __name__ == "__main__":
             Global_Iterations += 1
             print("Waiting 5 seconds...")
             time.sleep(5)
-        except:
+        #except:
             print("Either an error was encountered or a breakout occured. Going to start of script...")
             try:
                 browser.close()

@@ -81,7 +81,6 @@ def connectToSQLClientService():
         MySQLConnector.createNewClient(uuid_global, external_ip)
         print("We've created a new client.")
     global pingservice
-    pingservice = Process(target=pingClient,args=(returnUuid(),),daemon=True)
     
 def pingClient(uuid):
     while(1):
@@ -106,3 +105,6 @@ def returnUuid():
 if __name__ == "__main__":
 
     print("Client connector script running as main!")
+    
+    connectToSQLClientService()
+    beginPingService()
