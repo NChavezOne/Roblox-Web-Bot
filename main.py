@@ -313,8 +313,6 @@ def crackCaptcha(group=False):
     global firstTime
     global Captchas_Encountered
     
-    clientConnector.endPingService()
-    
     cprint.printColor("Attempting to crack captcha.","YELLOW")
     Captchas_Encountered += 1
     if (Captchas_Encountered > 20):
@@ -516,12 +514,6 @@ def crackCaptcha(group=False):
     print("No other captchas found.")
     print("")
     
-    try:
-        clientConnector.beginPingService()
-    except:
-        print("Couldn't restart ping service.")
-    time.sleep(0.5)
-
 def isElementPresentByID(what):
     try: browser.find_element(By.ID, what)
     except NoSuchElementException: return False
@@ -713,8 +705,4 @@ if __name__ == "__main__":
                 browser.close()
             except:
                 print("Browser close error")
-            try:
-                clientConnector.beginPingService()
-            except:
-                print("Couldn't restart ping service.")
             time.sleep(1)
