@@ -625,7 +625,7 @@ if __name__ == "__main__":
     while (1): 
         #uncomment if bypassing try except block
         if (1 == 1):
-        #try:
+        try:
             cprint.clearConsole()
             
             #Get the mode we are operating in.
@@ -703,7 +703,7 @@ if __name__ == "__main__":
             Global_Iterations += 1
             print("Waiting 5 seconds...")
             time.sleep(5)
-        #except:
+        except:
             print("Either an error was encountered or a breakout occured. Going to start of script...")
             try:
                 browser.close()
