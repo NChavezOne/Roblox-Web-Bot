@@ -624,7 +624,7 @@ if __name__ == "__main__":
     #Main program loop
     while (1): 
         #uncomment if bypassing try except block
-        if (1 == 1):
+        #if (1 == 1):
         try:
             cprint.clearConsole()
             
