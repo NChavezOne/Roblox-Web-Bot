@@ -613,9 +613,9 @@ if __name__ == "__main__":
     global our_uuid 
     our_uuid = clientConnector.returnUuid()
     import threading
-    pingservice = threading.Thread(target=(pingClient),args=(our_uuid, ),daemon=True)
-    pingservice.start()
-    print("Ping service started!")
+    #pingservice = threading.Thread(target=(pingClient),args=(our_uuid, ),daemon=True)
+    #pingservice.start()
+    #print("Ping service started!")
     
     #Get, and then set the proper loopback for captcha audio processing
     
