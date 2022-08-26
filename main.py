@@ -481,6 +481,12 @@ def crackCaptcha(group=False):
         iframe = browser.find_element(By.ID,"fc-iframe-wrap")
         browser.switch_to.frame(iframe)
         time.sleep(1)
+        
+        if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
+            print("Roblox ratelimitting us.")
+            time.sleep(3)
+            breakout = (2 / 0)
+        
         if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
             print("CaptchaFrame and close button found, wait 1 sec")
             time.sleep(1)
@@ -493,6 +499,12 @@ def crackCaptcha(group=False):
                 if (isElementPresentByID("CaptchaFrame") == True):
                     iframe = browser.find_element(By.ID,"CaptchaFrame")
                     browser.switch_to.frame(iframe)
+                    
+                    if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
+                        print("Roblox ratelimitting us.")
+                        time.sleep(3)
+                        breakout = (2 / 0)
+                    
                     #So this is a strange workaround. I couldn't figure out how to reliably
                     #Detect duplicate captchas or if roblox throws more captchas, so
                     #I actually just read the color value of one of the pixels on screen and
@@ -626,11 +638,12 @@ if __name__ == "__main__":
     audio.getCorrectMic()
     
     #Main program loop
-    while (1): 
+    times_executed = 0
+    while (times_executed < 10): 
         #uncomment if bypassing try except block
         #if (1 == 1):
         try:
-            cprint.clearConsole()
+            #cprint.clearConsole()
             
             #Get the mode we are operating in.
             global mode_operating
@@ -713,6 +726,7 @@ if __name__ == "__main__":
             Global_Iterations += 1
             print("Waiting 5 seconds...")
             time.sleep(5)
+            times_executed = 10
         except:
             print("Either an error was encountered or a breakout occured. Going to start of script...")
             try:
@@ -720,3 +734,6 @@ if __name__ == "__main__":
             except:
                 print("Browser close error")
             time.sleep(1)
+    print("Script was executed 10 times. Running new program.")
+    cmd = "main.py"
+    os.system(cmd)
