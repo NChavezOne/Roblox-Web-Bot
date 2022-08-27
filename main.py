@@ -679,11 +679,11 @@ if __name__ == "__main__":
             if (clientUpdater.upDateIfPossible()):
                 os.system("git reset --hard HEAD")
                 os.system("git pull origin main")
-                os.system("main.py")
                 stop_threads = True
                 pingservice.join()
                 print('thread killed')
                 time.sleep(2)
+                os.system("main.py")
                 sys.exit()
             
             #Get the mode we are operating in.
