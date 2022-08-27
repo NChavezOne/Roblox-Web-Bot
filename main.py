@@ -83,8 +83,8 @@ def createAccount(username = "TEST", password = "TEST"):
     print("")
     print("Attempting to create account " + str(username) + " " + str(password))
     
-    pyautogui.moveTo(1792,963) #accept cookies
-    pyautogui.click()
+    #pyautogui.moveTo(1792,963) #accept cookies
+    #pyautogui.click()
     
     #register link for roblox.
     browser.get('https://www.roblox.com/?returnUrl=https%253A%252F%252Fwww.roblox.com%252Fdiscover')

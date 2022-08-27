@@ -38,8 +38,17 @@ global clientCreated
 clientCreated = True;
 
 #==================================
+def createConnection():
+    global mydb
+    mydb = mysql.connector.connect(
+          host=main_host,
+          user="root",
+          password="alexander53",
+          database="maindatabase"
+        )
 
 def createNewClient(uuid, ipaddress, internalip):
+    createConnection()
     mycursor = mydb.cursor()
 
     sql = "INSERT INTO clientconnector (uuid, timecreated, lastpinged, status, ipaddress, internalip) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -50,6 +59,7 @@ def createNewClient(uuid, ipaddress, internalip):
     cprint.printColor("Client added to MySQL.", "CYAN")
     
 def checkIfClientExists(uuid, publicip, privateip):
+    createConnection()
     mycursor = mydb.cursor()
     sql = "SELECT * FROM clientconnector WHERE uuid = %s AND ipaddress = %s AND internalip = %s"
     val = (uuid, publicip, privateip)
@@ -62,6 +72,7 @@ def checkIfClientExists(uuid, publicip, privateip):
         return False
     
 def pingClient(uuid, os_name, **kwargs):
+    createConnection()
     mycursor = mydb.cursor()
 
     global unix_time
@@ -88,6 +99,7 @@ def pingClient(uuid, os_name, **kwargs):
     mydb.commit()
 
 def getLastPing(uuid):
+    createConnection()
     mycursor = mydb.cursor()
     
     sql = ("SELECT lastpinged FROM clientconnector WHERE uuid = %s")
@@ -97,6 +109,7 @@ def getLastPing(uuid):
     return myresult[0][0]
 
 def isUuidUsed(uuid):
+    createConnection()
     mycursor = mydb.cursor()
     sql = "SELECT * FROM clientconnector WHERE uuid = %s"
     val = (uuid,)
@@ -108,6 +121,7 @@ def isUuidUsed(uuid):
         return False
         
 def checkIfSameIP(public,local):
+    createConnection()
     mycursor = mydb.cursor()
     sql = "SELECT * FROM clientconnector WHERE ipaddress = %s AND internalip = %s"
     val = (public,local)
@@ -119,6 +133,7 @@ def checkIfSameIP(public,local):
         return False
         
 def checkIfSameMic(uuid):
+    createConnection()
     mycursor = mydb.cursor()
     sql = "SELECT correctmic FROM clientconnector WHERE uuid = %s"
     val = (uuid,)
@@ -130,6 +145,7 @@ def checkIfSameMic(uuid):
         return False
         
 def setMic(uuid, mic):
+    createConnection()
     mycursor = mydb.cursor()
 
     sql = "UPDATE clientconnector SET correctmic = %s WHERE uuid = %s"
@@ -144,6 +160,7 @@ def setMic(uuid, mic):
 #==============================
 
 def getRandomGroup():
+    createConnection()
     mycursor = mydb.cursor()
     mycursor.execute("SELECT groupspam FROM groupstospam ORDER BY RAND() LIMIT 1")
     myresult = mycursor.fetchall()
@@ -151,6 +168,7 @@ def getRandomGroup():
     return group
 
 def getMode():
+    createConnection()
     mycursor = mydb.cursor()
     mycursor.execute("SELECT mode FROM spambotmode ORDER BY time DESC LIMIT 1")
     myresult = mycursor.fetchall()
@@ -158,6 +176,7 @@ def getMode():
     return mode
 
 def getAccount():
+    createConnection()
     mycursor = mydb.cursor()
     mycursor.execute("SELECT username,password FROM robloxaccounts ORDER BY RAND() LIMIT 1")
     myresult = mycursor.fetchall()
@@ -166,6 +185,7 @@ def getAccount():
     return username, password
 
 def insertMachineLearning(messagessent,captchasuccess):
+    createConnection()
     mycursor = mydb.cursor()
 
     sql = "INSERT INTO machinelearning (messagessent, captchasuccess, time) VALUES (%s, %s, %s)"
@@ -182,6 +202,7 @@ def insertMachineLearning(messagessent,captchasuccess):
     print("")
 
 def getRecentGroup():
+    createConnection()
     mycursor = mydb.cursor()
     mycursor.execute("SELECT groupspam FROM spamgroup ORDER BY time DESC LIMIT 1")
     
@@ -189,6 +210,7 @@ def getRecentGroup():
     return myresult[0]
 
 def getRecentMessage():
+    createConnection()
     mycursor = mydb.cursor()
     mycursor.execute("SELECT message FROM spammessage ORDER BY time DESC LIMIT 1")
     
@@ -196,6 +218,7 @@ def getRecentMessage():
     return myresult[0]
 
 def insertAccount(username, password):
+    createConnection()
     mycursor = mydb.cursor()
 
     #need to include the ` symbole for columns in the table that have a space in their name, apparently
