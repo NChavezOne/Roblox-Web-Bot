@@ -22,7 +22,7 @@ def getCurrentCommit():
 def updateRepo():
     os.system("git reset --hard HEAD")
     os.system("git pull origin main")
-    os.execv(sys.argv[0], sys.argv)
+    os.system("clientupdater.py")
     
 def upDateIfPossible():
     if (str(getCurrentCommit()) != str(getLatestCommit())):
