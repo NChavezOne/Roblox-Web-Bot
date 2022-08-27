@@ -41,6 +41,6 @@ if __name__ == "__main__":
     clientservice.start()
     
     while (1):
-        print("This is the client updateras main! It's updated again! But faster!")
-        time.sleep(0.1)
+        print("This i11111pdateras main! It's updated again! But faster!")
+        time.sleep(1)
         
