@@ -38,10 +38,15 @@ def upDate():
     
 if __name__ == "__main__":
     
-    clientservice = threading.Thread(target=(upDate),args=(),daemon=True)
-    clientservice.start()
+    #clientservice = threading.Thread(target=(upDate),args=(),daemon=True)
+    #clientservice.start()
+    
+    
     
     while (1):
-        print("slow!")
-        time.sleep(2)
-        
+        upDateIfPossible()
+        i = 0
+        while (i < 20):
+            print("FAST!!!")
+            time.sleep(0.25)
+            i += 1
