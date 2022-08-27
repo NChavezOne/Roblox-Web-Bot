@@ -23,7 +23,7 @@ def updateRepo():
     os.system("git reset --hard HEAD")
     os.system("git pull origin main")
     os.system("clientupdater.py")
-    exit()
+    sys.exit("Killing old program!")
     
 def upDateIfPossible():
     if (str(getCurrentCommit()) != str(getLatestCommit())):
