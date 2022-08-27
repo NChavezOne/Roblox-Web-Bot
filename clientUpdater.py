@@ -45,6 +45,6 @@ if __name__ == "__main__":
         upDateIfPossible()
         i = 0
         while (i < 20):
-            print("FASTerer!!!")
+            print("we should not be here")
             time.sleep(1)
             i += 1
