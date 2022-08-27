@@ -193,7 +193,7 @@ def joinGroup():
     if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Unable to join group.')]"))) >= 1):
         print("We are unable to join the group.")
         time.sleep(1)
-        breakout = (2 / 1)
+        breakout = (2 / 0)
     
     time.sleep(1)
     try:
@@ -606,10 +606,14 @@ def pingClient(uuid):
         except Exception as ex:
             print(ex)
             print("Error pinging client, try again next cycle.")
+        global stop_threads
+        if stop_threads:
+            break
         time.sleep(20)
 
 global our_uuid
 global unknownErrorCount
+global stop_threads
 
 if __name__ == "__main__":
     
@@ -635,6 +639,7 @@ if __name__ == "__main__":
     global our_uuid 
     our_uuid = clientConnector.returnUuid()
     import threading
+    stop_threads = False
     pingservice = threading.Thread(target=(pingClient),args=(our_uuid, ),daemon=True)
     pingservice.start()
     print("Ping service started!")
@@ -664,7 +669,15 @@ if __name__ == "__main__":
             #cprint.clearConsole()
             
             #First, pull the latest version of the software from git
-            clientUpdater.upDateIfPossible()
+            if (clientUpdater.upDateIfPossible()):
+                os.system("git reset --hard HEAD")
+                os.system("git pull origin main")
+                os.system("main.py")
+                stop_threads = True
+                pingservice.join()
+                print('thread killed')
+                time.sleep(2)
+                sys.exit()
             
             #Get the mode we are operating in.
             global mode_operating

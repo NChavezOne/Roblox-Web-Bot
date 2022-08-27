@@ -27,10 +27,11 @@ def updateRepo():
     
 def upDateIfPossible():
     if (str(getCurrentCommit()) != str(getLatestCommit())):
-        updateRepo()
+        return True
     else:
         #print("We are on the latest version.")
         time.sleep(0.5)
+        return False
     
 def upDate():
     while(1):
