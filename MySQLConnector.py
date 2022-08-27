@@ -61,7 +61,7 @@ def checkIfClientExists(uuid, publicip, privateip):
     else:
         return False
     
-def pingClient(uuid, os_name, *args):
+def pingClient(uuid, os_name, **kwargs):
     mycursor = mydb.cursor()
 
     global unix_time

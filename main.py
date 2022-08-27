@@ -219,7 +219,7 @@ def sendMessage(message="message"):
         time.sleep(0.1)
         print("Can't find postData. Refreshing page and trying again.")
         browser.refresh()
-        time.sleep(2)
+        time.sleep(1)
         sendMessage()
     
     browser.find_element(By.ID, "postData").click()
@@ -229,7 +229,7 @@ def sendMessage(message="message"):
         time.sleep(0.1)
         print("Can't find postButton. Refreshing page and trying again.")
         browser.refresh()
-        time.sleep(2)
+        time.sleep(1)
         sendMessage()
         
     try:
@@ -252,12 +252,12 @@ def checkMessage():
 def checkForCaptcha(group=False):
     cprint.printColor("Checking for Captcha...","YELLOW")
     
-    time.sleep(2)
+    time.sleep(1)
     
     if (isElementPresentByID("FunCaptcha") == True):
         print("FunCaptcha found")
         
-        time.sleep(2)
+        time.sleep(1)
         
         if (isElementPresentByID("fc-iframe-wrap") == True):
             iframe = browser.find_element(By.ID,"fc-iframe-wrap")
@@ -301,7 +301,7 @@ def openCaptcha():
     browser.switch_to.frame(iframe)
     
     browser.find_element(By.ID, "fc_meta_audio_btn").click()
-    time.sleep(2.5)
+    time.sleep(1.5)
     
     while (isElementPresentByID("CaptchaFrame") != True):
         print("CaptchaFrame not found. Trying again...")
@@ -328,7 +328,7 @@ def crackCaptcha(group=False):
     
     if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
         print("Roblox ratelimitting us.")
-        time.sleep(3)
+        time.sleep(1)
         breakout = (2 / 0)
     
     time.sleep(2) #give the captcha some time to load.
@@ -486,7 +486,7 @@ def crackCaptcha(group=False):
         
         if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
             print("Roblox ratelimitting us.")
-            time.sleep(3)
+            time.sleep(1)
             breakout = (2 / 0)
         
         if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
@@ -504,7 +504,7 @@ def crackCaptcha(group=False):
                     
                     if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
                         print("Roblox ratelimitting us.")
-                        time.sleep(3)
+                        time.sleep(1)
                         breakout = (2 / 0)
                     
                     #So this is a strange workaround. I couldn't figure out how to reliably
@@ -526,7 +526,7 @@ def crackCaptcha(group=False):
                         crackCaptcha(group) 
                     else:
                         print("Captcha Color doesn't match.")
-                        time.sleep(2)
+                        time.sleep(1)
                 print("Error, couldn't find captchaframe.")
             print("Error, couldn't find fc-iframe again.")
     print("No other captchas found.")
@@ -600,7 +600,7 @@ def pingClient(uuid):
     global our_uuid
     while(1):
         uuid = our_uuid
-        client_upd = clientUpdater.getCurrentComnmit()
+        client_upd = clientUpdater.getCurrentCommit()
         MySQLConnector.pingClient(uuid, device_name, git_commit = client_upd[0:5])
         print("Client service pinged.")
         time.sleep(20)
@@ -730,9 +730,10 @@ if __name__ == "__main__":
             accountJustCreated = False
             browser.close()
             Global_Iterations += 1
-            print("Waiting 5 seconds...")
-            time.sleep(5)
-            times_executed = 10
+            print("Waiting 2 seconds...")
+            time.sleep(2)
+            
+            times_executed += 1
         except:
             print("Either an error was encountered or a breakout occured. Going to start of script...")
             try:
