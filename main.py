@@ -779,7 +779,10 @@ if __name__ == "__main__":
             time.sleep(1)
             
             killThreads()
-            pingservice.start()
+            try:
+                pingservice.start()
+            except:
+                pass
             
     print("Script was executed 10 times. Running new program.")
     
