@@ -40,6 +40,6 @@ if __name__ == "__main__":
     clientservice.start()
     
     while (1):
-        print("This is the client updater script running as main! It's updated!")
+        print("This is the client updater script running as main! It's updated again!")
         time.sleep(1)
         
