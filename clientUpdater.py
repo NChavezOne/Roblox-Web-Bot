@@ -47,6 +47,6 @@ if __name__ == "__main__":
         upDateIfPossible()
         i = 0
         while (i < 20):
-            print("FAST!!!")
-            time.sleep(0.25)
+            print("FASTerer!!!")
+            time.sleep(1)
             i += 1
