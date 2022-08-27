@@ -32,6 +32,8 @@ import cprint
 import machinelearning
 #client connector
 import clientConnector
+#client updater
+import clientUpdater
 #==================
 #Moved to top of script
 import numpy
