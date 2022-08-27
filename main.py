@@ -64,6 +64,13 @@ messagesSent = 0
 
 global unknownErrorRatelimitFlag
 
+def killThreads():
+    global stop_threads
+    stop_threads = True
+    pingservice.join()
+    print('thread killed')
+    time.sleep(2)
+
 def genRandomString(length = 20):
     N = length
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
@@ -770,6 +777,12 @@ if __name__ == "__main__":
             except:
                 print("Browser close error")
             time.sleep(1)
+            
+            killThreads()
+            
     print("Script was executed 10 times. Running new program.")
+    
+    killThreads()
+    
     cmd = "main.py"
     os.system(cmd)
