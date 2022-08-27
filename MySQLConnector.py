@@ -61,7 +61,7 @@ def checkIfClientExists(uuid, publicip, privateip):
     else:
         return False
     
-def pingClient(uuid, os_name, commited):
+def pingClient(uuid, os_name, *args):
     mycursor = mydb.cursor()
 
     global unix_time
@@ -79,8 +79,10 @@ def pingClient(uuid, os_name, commited):
     
     mydb.commit()
     
+    git_commit = kwargs.get('git_commit', None)
+    
     sql = "UPDATE clientconnector SET commit = %s WHERE uuid = %s"
-    val = (commited, uuid) #We are pinging in unix time, seconds.
+    val = (git_commit, uuid) #We are pinging in unix time, seconds.
     mycursor.execute(sql, val)
     
     mydb.commit()

@@ -601,7 +601,7 @@ def pingClient(uuid):
     while(1):
         uuid = our_uuid
         client_upd = clientUpdater.getCurrentComnmit()
-        MySQLConnector.pingClient(uuid, device_name, client_upd[0:5])
+        MySQLConnector.pingClient(uuid, device_name, git_commit = client_upd[0:5])
         print("Client service pinged.")
         time.sleep(20)
 
