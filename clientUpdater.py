@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 import threading
 import time
@@ -21,7 +22,7 @@ def getCurrentCommit():
 def updateRepo():
     os.system("git reset --hard HEAD")
     os.system("git pull origin main")
-    os.system("clientUpdater.py")
+    os.execv(sys.argv[0], sys.argv)
     
 def upDateIfPossible():
     if (str(getCurrentCommit()) != str(getLatestCommit())):
@@ -41,5 +42,5 @@ if __name__ == "__main__":
     
     while (1):
         print("This is the client updater script running as main! It's updated again!")
-        time.sleep(1)
+        time.sleep(0.25)
         
