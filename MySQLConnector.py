@@ -149,11 +149,11 @@ def setMic(uuid, mic):
     mycursor = mydb.cursor()
 
     sql = "UPDATE clientconnector SET correctmic = %s WHERE uuid = %s"
-    val = (mic,uuid)
+    val = (mic, uuid)
     mycursor.execute(sql, val)
 
     mydb.commit()
-    cprint.printColor("Client added to MySQL.", "CYAN")
+    cprint.printColor("Mic added to SQL.", "CYAN")
     
 
 #Client connector end.

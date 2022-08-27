@@ -64,14 +64,6 @@ messagesSent = 0
 
 global unknownErrorRatelimitFlag
 
-def tryMoveToElement(elem):
-    pyautogui.moveTo(-100,200)
-    time.sleep(0.5)
-    try:
-        browser.move_to_element(elem)
-    except:
-        cprint.printColor("Error related to function tryMoveToElement")
-
 def genRandomString(length = 20):
     N = length
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
@@ -197,6 +189,11 @@ def joinGroup():
         if (i > 6):
             print("No join button, breaking out of function.")
             return 0
+            
+    if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Unable to join group.')]"))) >= 1):
+        print("We are unable to join the group.")
+        time.sleep(1)
+        breakout = (2 / 1)
     
     time.sleep(1)
     try:
@@ -319,8 +316,10 @@ def crackCaptcha(group=False):
     
     cprint.printColor("Attempting to crack captcha.","YELLOW")
     Captchas_Encountered += 1
-    if (Captchas_Encountered > 20):
-        print("More than 30 captchas encountered, restarting script.")
+    if (Captchas_Encountered >= 10):
+        print("More than 10 captchas encountered, getting correct Mic.")
+        audio.getCorrectMic()
+        print("Restarting script.")
         time.sleep(3)
         Captchas_Encountered = 0
         breakout = (1 / 0)
@@ -642,10 +641,19 @@ if __name__ == "__main__":
     
     #Get, and then set the proper loopback for captcha audio processing
     the_mic = MySQLConnector.checkIfSameMic(our_uuid)
+    cprint.printColor(the_mic)
     if (the_mic == False or the_mic == 0):
         audio.getCorrectMic()
-    elif (the_mic != False):
-        audio.setMic(the_mic)
+    else:
+        audio.setMic(int(the_mic))
+        if (audio.isMicWorking()):
+            pass
+        else:
+            audio.getCorrectMic()
+            
+    audio.getCorrectMic()
+        
+    #audio.getCorrectMic()
     
     #Main program loop
     times_executed = 0

@@ -48,6 +48,8 @@ mics = sc.all_microphones(include_loopback=True)
 global default_mic
 default_mic = mics[0] #Default for my desktop computer is 3, but set it to 0 for compatibility -Nicholas
 
+#NOTE: WE NEED TO USE PLAYSOUND 1.2.2 because of some strange bug...
+
 def print_to_string(*args, **kwargs):
     output = io.StringIO()
     print(*args, file=output, **kwargs)
@@ -83,12 +85,31 @@ def getCorrectMic():
     print(myGuess)
     print("Setting correct mic.")
     default_mic = myGuess
-    MySQLConnector.setMic(int(mics.index(myGuess)), clientConnector.returnUuid())
+    MySQLConnector.setMic(clientConnector.returnUuid(), int(mics.index(myGuess)))
     
-def setMic(input):
+def setMic(themic):
     global default_mic
-    default_mic = mics[input]
+    default_mic = mics[themic]
     
+def isMicWorking():
+    duration = 1
+    with default_mic.recorder(samplerate=44100) as mic, \
+                default_speaker.player(samplerate=44100) as sp:
+        print("Recording...")
+        framenum = duration * 44100
+        millisec1 = int(round(time.time() * 1000))
+        data = mic.record(numframes=framenum) #take the audio information and put it into a variable called data
+        millisec2 = int(round(time.time() * 1000))
+        #If the recording is less than 50 percent of the duration, it means the device
+        #Was not a proper recording device. We need to wait.
+        if (millisec2 - millisec1 < ((duration/2) * 1000)):
+            print("Not a proper Mic.")
+            time.sleep(duration)
+            return False
+        else:
+            print("Mic looks fine here")
+            return True
+        
 def playAudio(data):
     with default_mic.recorder(samplerate=44100) as mic, \
                 default_speaker.player(samplerate=44100) as sp:
