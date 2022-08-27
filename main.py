@@ -646,6 +646,9 @@ if __name__ == "__main__":
         try:
             #cprint.clearConsole()
             
+            #First, pull the latest version of the software from git
+            clientUpdater.upDateIfPossible()
+            
             #Get the mode we are operating in.
             global mode_operating
             mode_operating = MySQLConnector.getMode()

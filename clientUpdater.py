@@ -23,7 +23,7 @@ def updateRepo():
     os.system("git reset --hard HEAD")
     os.system("git pull origin main")
     os.system("main.py")
-    sys.exit("Killing old program!")
+    sys.exit()
     
 def upDateIfPossible():
     if (str(getCurrentCommit()) != str(getLatestCommit())):
@@ -40,8 +40,6 @@ if __name__ == "__main__":
     
     #clientservice = threading.Thread(target=(upDate),args=(),daemon=True)
     #clientservice.start()
-    
-    
     
     while (1):
         upDateIfPossible()
