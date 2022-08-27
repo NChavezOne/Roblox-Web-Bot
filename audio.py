@@ -83,7 +83,7 @@ def getCorrectMic():
     print(myGuess)
     print("Setting correct mic.")
     default_mic = myGuess
-    MySQLConnector.setMic(myGuess, clientConnector.returnUuid())
+    MySQLConnector.setMic(int(mics.index(myGuess)), clientConnector.returnUuid())
     
 def setMic(input):
     global default_mic

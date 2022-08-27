@@ -641,7 +641,7 @@ if __name__ == "__main__":
     print("Ping service started!")
     
     #Get, and then set the proper loopback for captcha audio processing
-    the_mic = MySQLConnector.getCorrectMic(our_uuid)
+    the_mic = MySQLConnector.checkIfSameMic(our_uuid)
     if (the_mic == False or the_mic == 0):
         audio.getCorrectMic()
     elif (the_mic != False):
