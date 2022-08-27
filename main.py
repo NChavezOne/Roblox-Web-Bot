@@ -252,7 +252,7 @@ def checkMessage():
 def checkForCaptcha(group=False):
     cprint.printColor("Checking for Captcha...","YELLOW")
     
-    time.sleep(2)
+    time.sleep(3)
     
     if (isElementPresentByID("FunCaptcha") == True):
         print("FunCaptcha found")
@@ -734,7 +734,8 @@ if __name__ == "__main__":
             time.sleep(2)
             
             times_executed += 1
-        except:
+        except Exception as ex:
+            print(ex)
             print("Either an error was encountered or a breakout occured. Going to start of script...")
             try:
                 browser.close()
