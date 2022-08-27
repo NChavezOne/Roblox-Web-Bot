@@ -42,6 +42,6 @@ if __name__ == "__main__":
     clientservice.start()
     
     while (1):
-        print("Faster!")
-        time.sleep(0.1)
+        print("slow!")
+        time.sleep(2)
         
