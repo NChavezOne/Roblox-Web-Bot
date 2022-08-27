@@ -118,6 +118,27 @@ def checkIfSameIP(public,local):
     else:
         return False
         
+def checkIfSameMic(uuid):
+    mycursor = mydb.cursor()
+    sql = "SELECT correctmic FROM clientconnector WHERE uuid = %s"
+    val = (uuid)
+    mycursor.execute(sql, val)
+    myresult = mycursor.fetchall()
+    if (len(myresult) >= 1):
+        return myresult[0][0]
+    else:
+        return False
+        
+def setMic(uuid, mic):
+    mycursor = mydb.cursor()
+
+    sql = "UPDATE clientconnector SET correctmic = %s WHERE uuid = %s"
+    val = (mic,uuid)
+    mycursor.execute(sql, val)
+
+    mydb.commit()
+    cprint.printColor("Client added to MySQL.", "CYAN")
+    
 
 #Client connector end.
 #==============================

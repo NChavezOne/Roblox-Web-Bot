@@ -30,6 +30,8 @@ import io
 
 import cprint
 import machinelearning
+import MySQLConnector
+import clientConnector
 
 #============
 
@@ -81,7 +83,11 @@ def getCorrectMic():
     print(myGuess)
     print("Setting correct mic.")
     default_mic = myGuess
+    MySQLConnector.setMic(myGuess, clientConnector.returnUuid())
     
+def setMic(input):
+    global default_mic
+    default_mic = mics[input]
     
 def playAudio(data):
     with default_mic.recorder(samplerate=44100) as mic, \

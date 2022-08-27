@@ -601,8 +601,12 @@ def pingClient(uuid):
     while(1):
         uuid = our_uuid
         client_upd = clientUpdater.getCurrentCommit()
-        MySQLConnector.pingClient(uuid, device_name, git_commit = client_upd[0:5])
-        print("Client service pinged.")
+        try:
+            MySQLConnector.pingClient(uuid, device_name, git_commit = client_upd[0:5])
+            print("Client service pinged.")
+        except Exception as ex:
+            print(ex)
+            print("Error pinging client, try again next cycle.")
         time.sleep(20)
 
 global our_uuid
@@ -637,8 +641,11 @@ if __name__ == "__main__":
     print("Ping service started!")
     
     #Get, and then set the proper loopback for captcha audio processing
-    
-    audio.getCorrectMic()
+    the_mic = MySQLConnector.getCorrectMic(our_uuid)
+    if (the_mic == False or the_mic == 0):
+        audio.getCorrectMic()
+    elif (the_mic != False):
+        audio.setMic(the_mic)
     
     #Main program loop
     times_executed = 0
