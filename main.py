@@ -257,7 +257,7 @@ def checkForCaptcha(group=False):
     if (isElementPresentByID("FunCaptcha") == True):
         print("FunCaptcha found")
         
-        time.sleep(1)
+        time.sleep(2.5)
         
         if (isElementPresentByID("fc-iframe-wrap") == True):
             iframe = browser.find_element(By.ID,"fc-iframe-wrap")
