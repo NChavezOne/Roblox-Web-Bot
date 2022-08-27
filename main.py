@@ -252,12 +252,12 @@ def checkMessage():
 def checkForCaptcha(group=False):
     cprint.printColor("Checking for Captcha...","YELLOW")
     
-    time.sleep(1)
+    time.sleep(2)
     
     if (isElementPresentByID("FunCaptcha") == True):
         print("FunCaptcha found")
         
-        time.sleep(2.5)
+        time.sleep(2)
         
         if (isElementPresentByID("fc-iframe-wrap") == True):
             iframe = browser.find_element(By.ID,"fc-iframe-wrap")
