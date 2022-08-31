@@ -43,12 +43,12 @@ def createConnection():
               host=main_host,
               user=sql_username,
               password=sql_password,
-              database="mdaindatabase"
+              database="maindatabase"
             )
         return True
     except:
         time.sleep(1)
-        cprint.printColor("Could not find maindatabase. Creating new database.","RED")
+        cprint.printColor("Could not find maindatabase. Waiting here, the server script should create a new one from backup.","RED")
         mydb = mysql.connector.connect(
               host=main_host,
               user=sql_username,
@@ -70,22 +70,7 @@ def createConnection():
                 pass
            
         if (database_found == False): 
-            mycursor = mydb.cursor()
-            sql = "CREATE DATABASE maindatabase"
-            mycursor.execute(sql)
-                    
-            mydb = mysql.connector.connect(
-                host=main_host,
-                user=sql_username,
-                password=sql_password,
-                database="maindatabase"
-            )
-                    
-            backup_file = r"SQL backup/backup.txt"
-            f = open(backup_file, 'r')
-            cursor = mydb.cursor()
-            cursor.execute(f.read(), multi=True)
-            mydb.commit()
+            cprint.printColor("No database found. Waiting 60 seconds for a new one to appear.","RED")
         else:
             cprint.printColor("Could not connect to maindatabase, however it does exist","RED")
         
@@ -280,4 +265,4 @@ def Average(lst):
  
 if __name__ == "__main__":    
     
-    print(getMode())
+    print("This is the SQL script running as main!")

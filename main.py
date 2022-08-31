@@ -321,6 +321,8 @@ def crackCaptcha(group=False):
     global firstTime
     global Captchas_Encountered
     
+    pingClient(our_uuid)
+    
     cprint.printColor("Attempting to crack captcha.","YELLOW")
     Captchas_Encountered += 1
     if (Captchas_Encountered >= 10):
@@ -604,7 +606,7 @@ global Captchas_Encountered
 
 def pingClient(uuid):
     global our_uuid
-    while(1):
+    if(True):
         uuid = our_uuid
         client_upd = clientUpdater.getCurrentCommit()
         try:
@@ -613,10 +615,6 @@ def pingClient(uuid):
         except Exception as ex:
             print(ex)
             print("Error pinging client, try again next cycle.")
-        global stop_threads
-        if stop_threads:
-            break
-        time.sleep(20)
 
 global our_uuid
 global unknownErrorCount
@@ -645,11 +643,8 @@ if __name__ == "__main__":
     clientConnector.connectToSQLClientService()
     global our_uuid 
     our_uuid = clientConnector.returnUuid()
-    import threading
-    stop_threads = False
-    pingservice = threading.Thread(target=(pingClient),args=(our_uuid, ),daemon=True)
-    pingservice.start()
-    print("Ping service started!")
+    
+    #Deprecated ping threading, too buggy. Just ping when you solve a captcha
     
     #Get, and then set the proper loopback for captcha audio processing
     the_mic = MySQLConnector.checkIfSameMic(our_uuid)
