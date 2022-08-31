@@ -67,7 +67,6 @@ global unknownErrorRatelimitFlag
 def killThreads():
     global stop_threads
     stop_threads = True
-    pingservice.join()
     print('thread killed')
     time.sleep(2)
 
@@ -675,7 +674,6 @@ if __name__ == "__main__":
                 os.system("git reset --hard HEAD")
                 os.system("git pull origin main")
                 stop_threads = True
-                pingservice.join()
                 print('thread killed')
                 time.sleep(2)
                 os.system("main.py")
@@ -774,18 +772,11 @@ if __name__ == "__main__":
             time.sleep(1)
             
             killThreads()
-            try:
-                pingservice.start()
-            except:
-                pass
-            
+
     print("Script was executed 10 times. Running new program.")
     
     killThreads()
-    try:
-        pingservice.start()
-    except:
-        pass
+
     
     cmd = "main.py"
     os.system(cmd)
