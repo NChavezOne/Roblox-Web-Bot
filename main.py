@@ -481,15 +481,15 @@ def crackCaptcha(group=False):
     print("Pressing Enter...")
     keyboard.send('enter')
     
-    print("Waiting 1 second...")
-    time.sleep(1)
+    print("Waiting 3 second...")
+    time.sleep(3)
     
     browser.switch_to.default_content()
     if (isElementPresentByID("fc-iframe-wrap") == True):
-        print("fc-iframe-wrap still here! wait 1 sec")
+        print("fc-iframe-wrap still here! Waiting 0.5 second.")
         iframe = browser.find_element(By.ID,"fc-iframe-wrap")
         browser.switch_to.frame(iframe)
-        time.sleep(1)
+        time.sleep(0.5)
         
         if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
             print("Roblox ratelimitting us.")
@@ -497,8 +497,8 @@ def crackCaptcha(group=False):
             breakout = (2 / 0)
         
         if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
-            print("CaptchaFrame and close button found, wait 1 sec")
-            time.sleep(1)
+            print("CaptchaFrame and close button found, wait 0.5 seconds.")
+            time.sleep(0.5)
             #pyautogui.moveTo(1450,715) #random position
             #pyautogui.click()
             browser.switch_to.default_content()
