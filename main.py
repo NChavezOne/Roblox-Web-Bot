@@ -338,7 +338,7 @@ def crackCaptcha(group=False):
         time.sleep(1)
         breakout = (2 / 0)
     
-    time.sleep(2) #give the captcha some time to load.
+    time.sleep(5) #give the captcha some time to load.
     
     #Play the audio so we can record it.
     #=======================
