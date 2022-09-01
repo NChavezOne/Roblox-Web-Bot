@@ -8,7 +8,6 @@ import socket
 
 import MySQLConnector
 
-from multiprocessing import Process
 import time
 
 #====================
