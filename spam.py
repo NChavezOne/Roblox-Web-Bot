@@ -4,6 +4,8 @@
 #Version 1 completed 8/15/22
 
 import os
+from os.paths import exists
+
 import sys
 import time
 import random
@@ -18,6 +20,7 @@ pyautogui.FAILSAFE = False #Disable the failesafe, i.e. click in corners
 import pyperclip
 import keyboard
 import mouse
+import glob
 
 #init colorama
 from colorama import init
@@ -366,15 +369,19 @@ def handler(signum, frame):
         pyautogui.click()
     #=======================
 
-def machineLearn(audioDataRaw, num):
+def machineLearn():
     global capoptions
     capoptions = list()
-    audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
-    file = "option" + str(num)
-    audio.createFileFromData(r"Audio & Spectrograms/",audioDataRaw,file,"wav")
-    file += r".wav"
-    file = r"Audio & Spectrograms/" + file
-    pred = machinelearning.predictIfCrowd(file)
+    
+    files = glob.glob(r"Audio & Spectrograms/")
+    for f in files:
+        os.remove(f)
+    
+    machinelearning.predictIfCrowd(r"Test Audio/Sample-3s.wav")
+    while (exists()
+    
+    
+    
     capoptions.append(pred)
     
     print(f"PREDICTION: {pred[0][1]}")
@@ -385,9 +392,31 @@ def machineLearn(audioDataRaw, num):
         if (pred[0][1] == min(capoptions)):
             signal.raise_signal(2)
     
+#Thread
 def recordS():
+    #Audio recording thread.
+    print("Option 1:")
+    time.sleep(1.1) #Time for option one TTS
+    file = "option" + str(1)
+    audioDataRaw = recordAudio(3)
+    audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
+    audio.createFileFromData(r"Audio & Spectrograms/",AudioDataRaw,file,"wav")
+    
+    print("Option 2:")
+    time.sleep(1.1) #Time for option Two TTS
     file = "option" + str(2)
-    audio.createFileFromData(r"Audio & Spectrograms/",recordAudio(3),file,"wav")
+    audioDataRaw = recordAudio(3)
+    audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
+    audio.createFileFromData(r"Audio & Spectrograms/",AudioDataRaw,file,"wav")
+    
+    print("Option 3:")
+    time.sleep(1.1) #Time for option three TTS
+    file = "option" + str(3)
+    audioDataRaw = recordAudio(3)
+    audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
+    audio.createFileFromData(r"Audio & Spectrograms/",AudioDataRaw,file,"wav")
+    #Done recording audio.
+    
 
 firstTime = True
 captchasuccess = list() #Depracated.
@@ -440,51 +469,15 @@ def crackCaptcha(group=False):
     
     time.sleep(2)
     
-    print("Option 1:")
-    time.sleep(1.1) #Time for option one TTS
     audioService = threading.Thread(target = machineLearn, args = (option,1))
     audioService.start()
-    myGuess = 1
+    
+    recordService = threading.Thread(target = recordS, args = (,))
+    recordService.start()
     
     #====================================
     print("End of audio gathering.")
-    #i = 0
-    #while (i < 3): #Cut all the recorded audio clips.
-    #    audioDataRaw[i] = audioDataRaw[i][int(len(audioDataRaw[i])/10):int(len(audioDataRaw[i])-(len(audioDataRaw[i])/10))] #Cut off the first and last 10% of each audio clip.
-    #    i+=1
     
-    #perform audio processing
-    #====================================
-    
-    #i = 0
-    #while (i < 3):
-    #    #print("Raw Audio Data: ")
-    #    #print(i)
-    #    #print(audioDataRaw[i])
-    #    i +=1
-    #====================================
-    #Create and compare
-    
-    #print("Creating the audio files.")
-    #i = 0
-    #while (i < 3):
-    #    file = "option" + str(i+1)
-    #    audio.createFileFromData(r"Audio & Spectrograms/",audioDataRaw[i],file,"wav")
-    #    i +=1
-    
-    #print("These are the machine learning results.")
-    #options = list()
-    #options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option1.wav"))
-    #options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option2.wav"))
-    #options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option3.wav"))
-    
-    #i = 0
-    #while (i<3):
-    #    options[i]=options[i][0][1]
-    #    print(options[i])
-    #    i+=1
-        
-    #myGuess = options.index(min(options)) + 1
     print("My guess for the crowd cheering is " + str(myGuess))
     
     #====================================
@@ -744,7 +737,7 @@ if __name__ == "__main__":
                 audio.getCorrectMic()
                 
     #audio.getCorrectMic()
-    audio.setMic(2)
+    audio.setMic(0)
     
     #=================================
     #Testing on 9/2 get some cookies

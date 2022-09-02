@@ -85,7 +85,8 @@ def getCorrectMic():
     print(myGuess)
     print("Setting correct mic.")
     default_mic = myGuess
-    MySQLConnector.setMic(clientConnector.returnUuid(), int(mics.index(myGuess)))
+    #MySQLConnector.setMic(clientConnector.returnUuid(), int(mics.index(myGuess)))
+    return myGuess
     
 def setMic(themic):
     global default_mic
@@ -153,9 +154,13 @@ def testAudioAndFiles():
 
 if __name__ == "__main__":
     
-    print("Hello world!")
     print("Audio script is running as main!")
+    
+    #print("The correct mic is:")
+    #print(getCorrectMic())
+    
     print(mics)
-    setMic(2)
-    testAudioAndFiles()
+    
+    #setMic(2)
+    #testAudioAndFiles()
     
