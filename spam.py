@@ -8,6 +8,9 @@ import sys
 import time
 import random
 import string
+import threading
+
+import signal
 
 import pyautogui
 pyautogui.FAILSAFE = False #Disable the failesafe, i.e. click in corners
@@ -39,7 +42,10 @@ import clientUpdater
 import numpy
 
 import audio #Audio recording script.
+
 import MySQLConnector #MySQLScript.
+
+import changeCookies
 
 #==================
 #For captchaColor workaround
@@ -63,6 +69,16 @@ global messagesSent
 messagesSent = 0
 
 global unknownErrorRatelimitFlag
+
+global browser
+
+global stopCaptchaFlag
+stopCaptchaFlag = True
+
+global capoptions
+captions = list()
+
+#========================================
 
 def killThreads():
     global stop_threads
@@ -255,42 +271,57 @@ def checkMessage():
 def checkForCaptcha(group=False):
     cprint.printColor("Checking for Captcha...","YELLOW")
     
-    time.sleep(3)
+    #time.sleep(10)
     
-    if (isElementPresentByID("FunCaptcha") == True):
-        print("FunCaptcha found")
-        
-        time.sleep(2)
-        
-        if (isElementPresentByID("fc-iframe-wrap") == True):
-            iframe = browser.find_element(By.ID,"fc-iframe-wrap")
-            if (len(browser.find_elements("xpath", "//iframe[@id='fc-iframe-wrap']")) > 1):
-                print("Duplicate Captchas found. Refreshing page...")
-                browser.refresh()
-                return False
-            print("fc-iframe-wrap found. Changing scope...")
-            browser.switch_to.frame(iframe)
-        
-        if (isElementPresentByID("CaptchaFrame") == True):
-            iframe = browser.find_element(By.ID,"CaptchaFrame")
-            print("CaptchaFrame found. Changing scope...")
-            browser.switch_to.frame(iframe)
-        
-        if (isElementPresentByID("home_children_body") == True):
-            if (str(browser.find_element(By.ID,"home_children_body").get_attribute("innerHTML")) == " Please solve this challenge so we know you are a real person"):
-                print("Captcha root found!")
-                openCaptcha()
-                crackCaptcha(group)
-                return True
+    waittd = 0
+    while (True):
+        if (isElementPresentByID("FunCaptcha") == True):
+            print("FunCaptcha found")
+            while (isElementPresentByID("fc-iframe-wrap") != True):
+                pass
+            if (isElementPresentByID("fc-iframe-wrap") == True):
+                iframe = browser.find_element(By.ID,"fc-iframe-wrap")
+                if (len(browser.find_elements("xpath", "//iframe[@id='fc-iframe-wrap']")) > 1):
+                    print("Duplicate Captchas found. Refreshing page...")
+                    browser.refresh()
+                    return False
+                print("fc-iframe-wrap found. Changing scope...")
+                browser.switch_to.frame(iframe)
+            
+            while (isElementPresentByID("CaptchaFrame") != True):
+                pass
+            if (isElementPresentByID("CaptchaFrame") == True):
+                iframe = browser.find_element(By.ID,"CaptchaFrame")
+                print("CaptchaFrame found. Changing scope...")
+                browser.switch_to.frame(iframe)
+                
+            print("Waiting for verification...")
+            while ((len(browser.find_elements("xpath", "//*[contains(text(), 'Verification')]"))) <= 0):
+                pass
+            
+            while (isElementPresentByID("home_children_body") != True):
+                pass
+            if (isElementPresentByID("home_children_body") == True):
+                if (str(browser.find_element(By.ID,"home_children_body").get_attribute("innerHTML")) == " Please solve this challenge so we know you are a real person"):
+                    print("Captcha root found!")
+                    openCaptcha()
+                    crackCaptcha(group)
+                    return True
+                else:
+                    browser.refresh()
+                    print("Captcha root found but InnerHTML Does not match. Refreshing page...")
+                    return False
             else:
                 browser.refresh()
-                print("Captcha root found but InnerHTML Does not match. Refreshing page...")
+                print("innterHTML, or IFrame for captcha not found. Refreshing page...")
                 return False
-        else:
-            browser.refresh()
-            print("innterHTML, or IFrame for captcha not found. Refreshing page...")
-            return False
-    
+        
+        time.sleep(0.1)
+        waittd += 1
+        if (waittd >= 30):
+            print("3 seconds has passed without a captcha.")
+            break
+        
     cprint.printColor("Captcha was not detected.","GREEN")
     return False
 
@@ -298,20 +329,65 @@ def openCaptcha():
     browser.switch_to.default_content()
     while (isElementPresentByID("fc-iframe-wrap") != True):
         print("Iframe not found. Trying again...")
-        time.sleep(0.5)
+        #time.sleep(0.5)
     iframe = browser.find_element(By.ID,"fc-iframe-wrap")
     print("fc-iframe-wrap found. Changing scope...")
     browser.switch_to.frame(iframe)
     
     browser.find_element(By.ID, "fc_meta_audio_btn").click()
-    time.sleep(1.5)
+    
+    #Try without this sleep. 9/2
+    #time.sleep(1.5)
     
     while (isElementPresentByID("CaptchaFrame") != True):
         print("CaptchaFrame not found. Trying again...")
-        time.sleep(0.5)
+        #time.sleep(0.5)
     iframe = browser.find_element(By.ID,"CaptchaFrame")
     print("CaptchaFrame found. Changing scope...")
     browser.switch_to.frame(iframe)
+    
+    print("Waiting for Audio Challenge...")
+    while ((len(browser.find_elements("xpath", "//*[contains(text(), 'Audio Challenge')]"))) <= 0):
+        pass
+    
+    print("Audio challenge found!")
+
+def handler(signum, frame):
+    print("Crowd cheering found!")
+    global stopCaptchaFlag
+    stopCaptchaFlag = True;
+    #Stop playing.
+    #=======================
+    if (group == True):
+        pyautogui.moveTo(840,411) #Position of play button
+        pyautogui.click()
+    elif (group == False):
+        pyautogui.moveTo(830,600) #Other possible position
+        pyautogui.click()
+    #=======================
+
+def machineLearn(audioDataRaw, num):
+    global capoptions
+    capoptions = list()
+    audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
+    file = "option" + str(num)
+    audio.createFileFromData(r"Audio & Spectrograms/",audioDataRaw,file,"wav")
+    file += r".wav"
+    file = r"Audio & Spectrograms/" + file
+    pred = machinelearning.predictIfCrowd(file)
+    capoptions.append(pred)
+    
+    print(f"PREDICTION: {pred[0][1]}")
+    if (pred[0][1] <= -8):
+        signal.raise_signal(2)
+        
+    if (len(capoptions) > 1):
+        if (pred[0][1] == min(capoptions)):
+            signal.raise_signal(2)
+    
+def recordS():
+    file = "option" + str(2)
+    audio.createFileFromData(r"Audio & Spectrograms/",recordAudio(3),file,"wav")
 
 firstTime = True
 captchasuccess = list() #Depracated.
@@ -319,6 +395,8 @@ captchasuccess = list() #Depracated.
 def crackCaptcha(group=False):
     global firstTime
     global Captchas_Encountered
+    global stopCaptchaFlag
+    stopCaptchaFlag = False
     
     pingClient(our_uuid)
     
@@ -338,7 +416,8 @@ def crackCaptcha(group=False):
         time.sleep(1)
         breakout = (2 / 0)
     
-    time.sleep(5) #give the captcha some time to load.
+    #time.sleep(5) #give the captcha some time to load.
+    #Instead of waiting, let's see if we can wait for the audiochallenge instead
     
     #Play the audio so we can record it.
     #=======================
@@ -356,59 +435,56 @@ def crackCaptcha(group=False):
     
     #Listen for the audio clips
     #====================================
+    global capoptions
+    signal.signal(2, handler)
     
     time.sleep(2)
     
     print("Option 1:")
     time.sleep(1.1) #Time for option one TTS
-    audioDataRaw.append(audio.recordAudio(int(3)))
+    audioService = threading.Thread(target = machineLearn, args = (option,1))
+    audioService.start()
+    myGuess = 1
     
-    print("Option 2:")
-    time.sleep(1.1) #Time for option two TTS
-    audioDataRaw.append(audio.recordAudio(int(3)))
-
-    print("Option 3:")
-    time.sleep(1.1) #Time for option three TTS
-    audioDataRaw.append(audio.recordAudio(int(3)))
-
     #====================================
     print("End of audio gathering.")
-    i = 0
-    while (i < 3): #Cut all the recorded audio clips.
-        audioDataRaw[i] = audioDataRaw[i][int(len(audioDataRaw[i])/10):int(len(audioDataRaw[i])-(len(audioDataRaw[i])/10))] #Cut off the first and last 10% of each audio clip.
-        i+=1
+    #i = 0
+    #while (i < 3): #Cut all the recorded audio clips.
+    #    audioDataRaw[i] = audioDataRaw[i][int(len(audioDataRaw[i])/10):int(len(audioDataRaw[i])-(len(audioDataRaw[i])/10))] #Cut off the first and last 10% of each audio clip.
+    #    i+=1
     
     #perform audio processing
     #====================================
     
-    i = 0
-    while (i < 3):
-        #print("Raw Audio Data: ")
-        #print(i)
-        #print(audioDataRaw[i])
-        i +=1
+    #i = 0
+    #while (i < 3):
+    #    #print("Raw Audio Data: ")
+    #    #print(i)
+    #    #print(audioDataRaw[i])
+    #    i +=1
     #====================================
     #Create and compare
     
-    print("Creating the audio files.")
-    i = 0
-    while (i < 3):
-        file = "option" + str(i+1)
-        audio.createFileFromData(r"Audio & Spectrograms/",audioDataRaw[i],file,"wav")
-        i +=1
+    #print("Creating the audio files.")
+    #i = 0
+    #while (i < 3):
+    #    file = "option" + str(i+1)
+    #    audio.createFileFromData(r"Audio & Spectrograms/",audioDataRaw[i],file,"wav")
+    #    i +=1
     
-    print("These are the machine learning results.")
-    options = list()
-    options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option1.wav"))
-    options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option2.wav"))
-    options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option3.wav"))
+    #print("These are the machine learning results.")
+    #options = list()
+    #options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option1.wav"))
+    #options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option2.wav"))
+    #options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option3.wav"))
     
-    i = 0
-    while (i<3):
-        options[i]=options[i][0][1]
-        i+=1
+    #i = 0
+    #while (i<3):
+    #    options[i]=options[i][0][1]
+    #    print(options[i])
+    #    i+=1
         
-    myGuess = options.index(min(options)) + 1
+    #myGuess = options.index(min(options)) + 1
     print("My guess for the crowd cheering is " + str(myGuess))
     
     #====================================
@@ -626,16 +702,13 @@ if __name__ == "__main__":
     global Global_Iterations
     global Captchas_Encountered
     global accountJustCreated
-    
     global unknownErrorRatelimitFlag
     global unknownErrorCount
     unknownErrorCount = 0
-    
     unknownErrorRatelimitFlag = False
     accountJustCreated = False
     Global_Iterations = 1
     Captchas_Encountered = 0
-    
     
     #Connect to the client monitoring script, and begin periodic pining
     
@@ -643,23 +716,44 @@ if __name__ == "__main__":
     global our_uuid 
     our_uuid = clientConnector.returnUuid()
     
+    #=================================
+    #Initialize selenium
+    
+    global browser
+    chromedriver = "chromedriver.exe"
+    browser = webdriver.Chrome(executable_path=chromedriver)
+    browser.switch_to.window(browser.current_window_handle)
+    browser.set_page_load_timeout(30) #We don't want pages that take more than 30 seconds to load.
+    browser.maximize_window()
+        
     #Deprecated ping threading, too buggy. Just ping when you solve a captcha
     
     #Get, and then set the proper loopback for captcha audio processing
-    the_mic = MySQLConnector.checkIfSameMic(our_uuid)
-    cprint.printColor(the_mic)
-    if (the_mic == False or the_mic == 0):
-        audio.getCorrectMic()
-    else:
-        audio.setMic(int(the_mic))
-        if (audio.isMicWorking()):
-            pass
-        else:
+    #Don't use SQL for now. Doesn't work properly
+    TrustSQL = False
+    if (TrustSQL):
+        the_mic = MySQLConnector.checkIfSameMic(our_uuid)
+        cprint.printColor(the_mic)
+        if (the_mic == False or the_mic == 0):
             audio.getCorrectMic()
-            
-    audio.getCorrectMic()
-        
+        else:
+            audio.setMic(int(the_mic))
+            if (audio.isMicWorking()):
+                pass
+            else:
+                audio.getCorrectMic()
+                
     #audio.getCorrectMic()
+    audio.setMic(2)
+    
+    #=================================
+    #Testing on 9/2 get some cookies
+    
+    while True:
+        username, password  = MySQLConnector.getAccount()
+        logIntoAccount(username,password)
+        changeCookies.saveAccountCookie(browser, username)
+        time.sleep(1)
     
     #Main program loop
     times_executed = 0
@@ -689,16 +783,9 @@ if __name__ == "__main__":
             cprint.printColor("Captchas encountered so far: " + str(Captchas_Encountered))
             time.sleep(1)
             
-            #get the message from MySQL
+            #Get the message from MySQL
             global message
             message = str(MySQLConnector.getRecentMessage())
-            
-            global browser
-            chromedriver = "chromedriver.exe"
-            browser = webdriver.Chrome(executable_path=chromedriver)
-            browser.switch_to.window(browser.current_window_handle)
-            browser.set_page_load_timeout(30) #We don't want pages that take more than 30 seconds to load.
-            browser.maximize_window()
             
             #If we aren't getting ratelimited, create a new account. Otherwise, use on that already exist.
             if (unknownErrorRatelimitFlag == True):

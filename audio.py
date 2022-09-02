@@ -155,9 +155,7 @@ if __name__ == "__main__":
     
     print("Hello world!")
     print("Audio script is running as main!")
-    getCorrectMic()
-    while(1):
-        while (int(input("Waiting for a value greater than 1...")) > 1):
-            time.sleep(0.1)
-        testAudioAndFiles()
+    print(mics)
+    setMic(2)
+    testAudioAndFiles()
     
