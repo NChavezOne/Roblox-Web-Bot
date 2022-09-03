@@ -160,6 +160,6 @@ if __name__ == "__main__":
     #print(getCorrectMic())
     
     print(mics)
-    setMic(3)
+    setMic(2)
     testAudioAndFiles()
     

@@ -10,27 +10,33 @@ init()
 def printColor(string,color="RED"):
     if (color == "RED"):
         print(Fore.RED)
-        print(string)
+        print(string,end='')
+        sys.stdout.flush()
         print(Style.RESET_ALL)
     elif (color == "GREEN"):
         print(Fore.GREEN)
-        print(string)
+        print(string,end='')
+        sys.stdout.flush()
         print(Style.RESET_ALL)
     elif (color == "YELLOW"):
         print(Fore.YELLOW)
-        print(string)
+        print(string,end='')
+        sys.stdout.flush()
         print(Style.RESET_ALL)   
     elif (color == "BLUE"):
         print(Fore.BLUE)
-        print(string)
+        print(string,end='')
+        sys.stdout.flush()
         print(Style.RESET_ALL)
     elif (color == "MAGENTA"):
         print(Fore.MAGENTA)
-        print(string)
+        print(string,end='')
+        sys.stdout.flush()
         print(Style.RESET_ALL)
     elif (color == "CYAN"):
         print(Fore.CYAN)
-        print(string)
+        print(string,end='')
+        sys.stdout.flush()
         print(Style.RESET_ALL)
 
 def cprint(input, newline=True, delay1 = 0.01):

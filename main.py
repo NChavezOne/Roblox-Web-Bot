@@ -2,61 +2,56 @@
 #Source code modified from DiscordLoginTester.py
 #Started 8/2/22
 #Version 1 completed 8/15/22
+#Version 2: being worked on in VSCode on 9/2/22
+
+#==============================
+#Global generic imports
 
 import os
 from os.path import exists
 import shutil
-
 import sys
 import time
 import random
 import string
 import threading
-
 import signal
+import numpy
+import PIL.ImageGrab
+
+#==============================
+#Global imports for pip installs
 
 import pyautogui
-pyautogui.FAILSAFE = False #Disable the failesafe, i.e. click in corners
-
+pyautogui.FAILSAFE = False #Disable the pyautogui failsafe, so it can click in corners
 import pyperclip
 import keyboard
 import mouse
 import glob
 
-#init colorama
 from colorama import init
 from colorama import Fore, Back, Style
-init()
-#selenium
+init() #Import and initialize colorama
+#Selenium related imports
+global browser
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
-#cprint
+
+#==============================
+#Imports for personal local scripts
 import cprint
-#machine learning
 import machinelearning
-#client connector
 import clientConnector
-#client updater
 import clientUpdater
-#==================
-#Moved to top of script
-import numpy
-
-import audio #Audio recording script.
-
-import MySQLConnector #MySQLScript.
-
+import audio
+import MySQLConnector
 import changeCookies
 
 #==================
-#For captchaColor workaround
-import PIL.ImageGrab
-
-#==================
-#Global defines
+#Global variable defines
 
 global device_name
 device_name = os.environ['COMPUTERNAME']
@@ -72,12 +67,16 @@ global passCreated
 global messagesSent
 messagesSent = 0
 
+#Some interrupt related stuff for the captcha solver
+global captchaHandlerError
 global unknownErrorRatelimitFlag
-
-global browser
-
 global stopCaptchaFlag
+global machineLearnKilled
+global recordSKilled
+global sendPostFlag
+
 stopCaptchaFlag = True
+sendPostFlag = False
 
 global capoptions
 captions = list()
@@ -86,17 +85,103 @@ global myGuess
 
 global globalGroup
 
-global machineLearnKilled
-global recordSKilled
+global message
+global Global_Iterations
+global Captchas_Encountered
 
-global captchaHandlerError
+global master_delay
+master_delay = 1 #master delay, for various page loading tasks
+
 #========================================
+#Operating system related functions
 
-def killThreads():
-    global stop_threads
-    stop_threads = True
-    print('thread killed')
-    time.sleep(2)
+def countFiles(folder):
+    count = 0
+    dir_path = folder
+    for path in os.scandir(dir_path):
+        if path.is_file():
+            count += 1
+    return count
+
+def truncateFolder(folder):
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+#========================================
+#Web automation related functions
+
+def initSelenium():
+    global browser
+    chromedriver = "chromedriver.exe"
+    browser = webdriver.Chrome(executable_path=chromedriver)
+    browser.switch_to.window(browser.current_window_handle)
+    browser.set_page_load_timeout(30) #We don't want pages that take more than 30 seconds to load.
+    browser.maximize_window()
+
+def isElementPresentByID(what):
+    try: browser.find_element(By.ID, what)
+    except NoSuchElementException: return False
+    return True
+    
+def isElementPresentByClass(what):
+    try: browser.find_element(By.CLASS_NAME, what)
+    except NoSuchElementException: return False
+    return True
+
+def waitForElement(method, what, **kwargs):
+    timeout = 1
+    if (method == "ID"):
+        timeout *= 10
+        i = 0
+        while(isElementPresentByID(what) != True):
+            time.sleep(0.1)
+            i += 1
+            if (i >= timeout):
+                break
+        if (isElementPresentByID(what) == True):
+            return True
+        else:
+            return False
+    elif (method == "Class"):
+        timeout *= 10
+        i = 0
+        while(isElementPresentByClass(what) != True):
+            time.sleep(0.1)
+            i += 1
+            if (i >= timeout):
+                break
+        if (isElementPresentByClass(what) == True):
+            return True
+        else:
+            return False
+
+def waitForTextInScope(text):
+    timeout = 1
+    i = 0
+    while ((len(browser.find_elements("xpath", f"//*[contains(text(), '{text}')]"))) <= 0):
+        time.sleep(0.10)
+        i += 1
+        if (i >= timeout):
+            break
+
+#========================================
+#Other Function defines
+
+def initTensorFlow():
+    machinelearning.predictIfCrowd(r"Test Audio/Sample-3s.wav")
+
+def containsTextInScope(text):
+    if ((len(browser.find_elements("xpath", f"//*[contains(text(), '{text}')]"))) >= 1):
+        return True
+    else:
+        return False
 
 def genRandomString(length = 20):
     N = length
@@ -108,9 +193,6 @@ def createAccount(username = "TEST", password = "TEST"):
     
     print("")
     print("Attempting to create account " + str(username) + " " + str(password))
-    
-    #pyautogui.moveTo(1792,963) #accept cookies
-    #pyautogui.click()
     
     #register link for roblox.
     browser.get('https://www.roblox.com/?returnUrl=https%253A%252F%252Fwww.roblox.com%252Fdiscover')
@@ -204,6 +286,10 @@ def validateAccount():
     unknownErrorRatelimitFlag = False
     MySQLConnector.insertAccount(userCreated,passCreated)
 
+def goToLogon():
+    browser.get(r"https://roblox.com/login")
+    browser.maximize_window()
+
 def goToGroup():
     if (MySQLConnector.getMode() == 0):
         group = MySQLConnector.getRecentGroup()
@@ -242,8 +328,6 @@ def joinGroup():
 def sendMessage(message="message"):
     
     print("Sending message!")
-    
-    #message = "Roblox is a platform that enables the exploitation of young children."
    
     pyperclip.copy(message)
     while (isElementPresentByID("postData") != True):
@@ -268,7 +352,13 @@ def sendMessage(message="message"):
     except:
         cprint.printColor("Message sent failed.", "RED")
     
+    time.sleep(1)
     checkForCaptcha(True)
+
+    if (containsTextInScope("Unable to send post.")):
+        print("Roblox says unable to send post.")
+        global sendPostFlag
+        sendPostFlag = True
 
 def checkMessage():
     cprint.printColor("Checking messages.", "CYAN")
@@ -282,15 +372,11 @@ def checkMessage():
 
 def checkForCaptcha(group=False):
     cprint.printColor("Checking for Captcha...","YELLOW")
-    
-    #time.sleep(10)
-    
     waittd = 0
     while (True):
         if (isElementPresentByID("FunCaptcha") == True):
-            print("FunCaptcha found")
-            while (isElementPresentByID("fc-iframe-wrap") != True):
-                pass
+            cprint.printColor("FunCaptcha found","CYAN")
+            waitForElement("ID","fc-iframe-wrap")
             if (isElementPresentByID("fc-iframe-wrap") == True):
                 iframe = browser.find_element(By.ID,"fc-iframe-wrap")
                 if (len(browser.find_elements("xpath", "//iframe[@id='fc-iframe-wrap']")) > 1):
@@ -300,19 +386,16 @@ def checkForCaptcha(group=False):
                 print("fc-iframe-wrap found. Changing scope...")
                 browser.switch_to.frame(iframe)
             
-            while (isElementPresentByID("CaptchaFrame") != True):
-                pass
+            waitForElement("ID","CaptchaFrame")
             if (isElementPresentByID("CaptchaFrame") == True):
                 iframe = browser.find_element(By.ID,"CaptchaFrame")
                 print("CaptchaFrame found. Changing scope...")
                 browser.switch_to.frame(iframe)
                 
             print("Waiting for verification...")
-            while ((len(browser.find_elements("xpath", "//*[contains(text(), 'Verification')]"))) <= 0):
-                pass
+            waitForTextInScope("Verification")
             
-            while (isElementPresentByID("home_children_body") != True):
-                pass
+            waitForElement("ID","home_children_body")
             if (isElementPresentByID("home_children_body") == True):
                 if (str(browser.find_element(By.ID,"home_children_body").get_attribute("innerHTML")) == " Please solve this challenge so we know you are a real person"):
                     print("Captcha root found!")
@@ -360,7 +443,12 @@ def openCaptcha():
     
     print("Waiting for Audio Challenge...")
     while ((len(browser.find_elements("xpath", "//*[contains(text(), 'Audio Challenge')]"))) <= 0):
-        pass
+        time.sleep(0.10)
+        if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
+            print("Roblox ratelimitting us. Breaking out.")
+            time.sleep(1)
+            breakout = (2 / 0)
+        
     
     print("Audio challenge found!")
 
@@ -386,25 +474,16 @@ def machineLearn():
     
     global myGuess
     global machineLearnKilled
-    
+    global captchaHandlerError
+
     #==================================================
     #Truncate Folder.
     
-    folder = r"Audio & Spectrograms"
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (file_path, e))
+    truncateFolder(r"Audio & Spectrograms")
     
     #=================================================
     
     try:
-        machinelearning.predictIfCrowd(r"Test Audio/Sample-3s.wav")
         while (exists(r"Audio & Spectrograms/option1.wav") != True):
             pass
         pred = machinelearning.predictIfCrowd(r"Audio & Spectrograms/option1.wav")
@@ -417,7 +496,7 @@ def machineLearn():
         
         if (pred[0][1] <= thresh and pred[0][1] > lower):
             myGuess = 1
-            signal.raise_signal(2)
+            signal.raise_signal(signal.SIGTERM)
             machineLearnKilled = True
             return None
         
@@ -429,7 +508,7 @@ def machineLearn():
         print(f"PREDICTION: {pred[0][1]}")
         if (pred[0][1] <= thresh and pred[0][1] > lower):
             myGuess = 2
-            signal.raise_signal(2)
+            signal.raise_signal(signal.SIGTERM)
             machineLearnKilled = True
             return None
         
@@ -441,13 +520,13 @@ def machineLearn():
         print(f"PREDICTION: {pred[0][1]}")
                 
         myGuess = capoptions.index(min(capoptions)) + 1
-        signal.raise_signal(2)
+        signal.raise_signal(signal.SIGTERM)
         
         machineLearnKilled = True
     except:
+        
         cprint.printColor("Unknown error. Trying with normal method.","RED")
         machineLearnKilled = True
-        global captchaHandlerError
         captchaHandlerError = True
         return None
         
@@ -493,8 +572,10 @@ firstTime = True
 captchasuccess = list() #Depracated.
 
 def crackCaptcha(group=False):
+    #Global Defines
     global firstTime
     global Captchas_Encountered
+    
     global stopCaptchaFlag
     stopCaptchaFlag = False
     
@@ -503,34 +584,31 @@ def crackCaptcha(group=False):
     global globalGroup
     globalGroup = group
     
+    #Interrupts
     global machineLearnKilled
     machineLearnKilled = False
     global recordSKilled
     recordSKilled = False
     
+    #Interrupt flags
     global captchaHandlerError
     captchaHandlerError = False 
     
+    #Ping client service to let them know we're alvie.
     pingClient(our_uuid)
     
     cprint.printColor("Attempting to crack captcha.","YELLOW")
+    print("")
     Captchas_Encountered += 1
     if (Captchas_Encountered >= 100):
-        print("More than 10 captchas encountered, getting correct Mic.")
-        audio.getCorrectMic()
-        print("Restarting script.")
-        time.sleep(3)
+        print("More than 100 captchas encountered, breaking out.")
         Captchas_Encountered = 0
-        breakout = (1 / 0)
-    print("")
-    
-    if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
-        print("Roblox ratelimitting us.")
-        time.sleep(1)
         breakout = (2 / 0)
     
-    #time.sleep(5) #give the captcha some time to load.
-    #Instead of waiting, let's see if we can wait for the audiochallenge instead
+    if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
+        print("Roblox ratelimitting us. Breaking out.")
+        time.sleep(1)
+        breakout = (2 / 0)
     
     #Play the audio so we can record it.
     #=======================
@@ -541,15 +619,14 @@ def crackCaptcha(group=False):
         pyautogui.moveTo(830,610) #Other possible position
         pyautogui.click()
     #=======================
-    
-    
+
     #array to store the audio data in
     audioDataRaw = list()
     
     #Listen for the audio clips
     #====================================
     global capoptions
-    signal.signal(2, handler)
+    signal.signal(signal.SIGTERM, handler) #Setup interrupts.
     
     time.sleep(2)
     
@@ -560,7 +637,6 @@ def crackCaptcha(group=False):
     recordService.start()
     
     #====================================
-    #print("End of audio gathering.")
     
     while(1):
         time.sleep(0.25)
@@ -591,7 +667,8 @@ def crackCaptcha(group=False):
     
     
     print("My guess for the crowd cheering is " + str(myGuess))
-    
+    print("") 
+
     #====================================
     
     #Go to the submission box.
@@ -604,36 +681,7 @@ def crackCaptcha(group=False):
         pyautogui.click()
     #=======================
     
-    print("")
-   
-    if (firstTime == True):
-        supervision = False
-        #If we are doing supervised machine learning, query the user for the correct audio clip
-        #Deprecated.
-        if (supervision == True):
-            correct_one = input("Which option was the correct audio clip?")
-            if (correct_one != 5):
-                print("Okay. Adding to SQL, I'll replace what I wrote in the box")
-                
-                if (correct_one == (myGuess)):
-                    captchasuccess.append(1)
-                    print("My guess was correct!")
-                elif (correct_one != myGuess):
-                    captchasuccess.append(0)
-                    print("My guess was not correct.")
-                
-                #MySQLConnector.insertIntoDb(60, float(data_var[int(correct_one)]), float(data_std[int(correct_one)]))
-                if (group == True):
-                    pyautogui.moveTo(1000,415) #Position of submission box
-                    pyautogui.click()
-                elif (group == False):
-                    pyautogui.moveTo(983,592) #Other possible position
-                    pyautogui.click()
-            else:
-                print("Breaking out.")
-            firstTime = True
-        else:
-            correct_one = myGuess
+    correct_one = myGuess  
         
     keyboard.write(str(correct_one))
     time.sleep(1)
@@ -642,7 +690,7 @@ def crackCaptcha(group=False):
     global captchaColor
     #======================================
     if (firstCaptcha == True):
-        #For the first globall encountered captcha, set the captchacolor.
+        #For the first globally encountered captcha, set the captchacolor.
         if (group == True):
             x ,y = 990, 461 #For joining groups
         if (group == False):
@@ -672,16 +720,14 @@ def crackCaptcha(group=False):
         browser.switch_to.frame(iframe)
         #time.sleep(0.5)
         
-        if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
+        if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
             print("Roblox ratelimitting us.")
             time.sleep(1)
             breakout = (2 / 0)
         
         if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
             print("CaptchaFrame and close button found, wait 0.5 seconds.")
-            #time.sleep(0.5)
-            #pyautogui.moveTo(1450,715) #random position
-            #pyautogui.click()
+
             browser.switch_to.default_content()
             if (isElementPresentByID("fc-iframe-wrap") == True):
                 iframe = browser.find_element(By.ID,"fc-iframe-wrap")
@@ -690,11 +736,13 @@ def crackCaptcha(group=False):
                     iframe = browser.find_element(By.ID,"CaptchaFrame")
                     browser.switch_to.frame(iframe)
                     
-                    if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
+                    if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
                         print("Roblox ratelimitting us.")
                         time.sleep(1)
                         breakout = (2 / 0)
                     
+                    time.sleep(1)
+
                     #So this is a strange workaround. I couldn't figure out how to reliably
                     #Detect duplicate captchas or if roblox throws more captchas, so
                     #I actually just read the color value of one of the pixels on screen and
@@ -719,18 +767,9 @@ def crackCaptcha(group=False):
             print("Error, couldn't find fc-iframe again.")
     print("No other captchas found.")
     print("")
-    
-def isElementPresentByID(what):
-    try: browser.find_element(By.ID, what)
-    except NoSuchElementException: return False
-    return True
-    
-def isElementPresentByClass(what):
-    try: browser.find_element(By.CLASS_NAME, what)
-    except NoSuchElementException: return False
-    return True
 
 def sendThreeMessages():
+    global sendPostFlag
     global message
     global messagesSent
     x = checkMessage()
@@ -747,11 +786,11 @@ def sendThreeMessages():
         time.sleep(0.5)
         sendMessage(send_message)
         i += 1
+        if (sendPostFlag == True):
+            break
         
     y = checkMessage()
     messagesSent = y - x
-
-master_delay = 1 #master delay, for various page loading tasks
 
 def Average(lst):
     return sum(lst) / len(lst)
@@ -780,10 +819,6 @@ def logIntoAccount(username, password):
         time.sleep(0.1)
     print("Done! Logged into account.")
     
-global message
-global Global_Iterations
-global Captchas_Encountered
-
 def pingClient(uuid):
     global our_uuid
     if(True):
@@ -824,6 +859,8 @@ if __name__ == "__main__":
     
     #Global defines and setting
     
+    global userCreated 
+
     global Global_Iterations
     global Captchas_Encountered
     global accountJustCreated
@@ -842,17 +879,10 @@ if __name__ == "__main__":
     our_uuid = clientConnector.returnUuid()
     
     #=================================
-    #Initialize selenium
-    
-    global browser
-    chromedriver = "chromedriver.exe"
-    browser = webdriver.Chrome(executable_path=chromedriver)
-    browser.switch_to.window(browser.current_window_handle)
-    browser.set_page_load_timeout(30) #We don't want pages that take more than 30 seconds to load.
-    browser.maximize_window()
-        
-    #Deprecated ping threading, too buggy. Just ping when you solve a captcha
-    
+
+    #Initialize tensorflow
+    initTensorFlow()
+
     #Get, and then set the proper loopback for captcha audio processing
     #Don't use SQL for now. Doesn't work properly
     TrustSQL = False
@@ -868,32 +898,21 @@ if __name__ == "__main__":
             else:
                 audio.getCorrectMic()
                 
-    audio.getCorrectMic()
-    #audio.setMic(3)
+    #audio.getCorrectMic()
+    audio.setMic(2)
     
     #=================================
-    #Testing on 9/2 get some cookies
-    
-    asdf = False
-    if (asdf == True):
-        print("Cycled through all accounts.")
-        
-        while True:
-            username, password  = MySQLConnector.getAccount()
-            logIntoAccount(username,password)
-            time.sleep(5)
-            print("Saving cookies")
-            changeCookies.saveAccountCookie(browser, username)
-            print("Done.")
-            time.sleep(5)
-    
+    #Truncate the cookies folder.
+
+    #truncateFolder(r"cookies")
+    userCreated = "2C2KG4F8PYWYHKNKMNYE"
+
     #Main program loop
     times_executed = 0
     while (times_executed < 10): 
         #uncomment if bypassing try except block
         #if (1 == 1):
         try:
-            #cprint.clearConsole()
             
             #First, pull the latest version of the software from git
             if (clientUpdater.upDateIfPossible()):
@@ -919,27 +938,56 @@ if __name__ == "__main__":
             global message
             message = str(MySQLConnector.getRecentMessage())
             
-            #If we aren't getting ratelimited, create a new account. Otherwise, use on that already exist.
-            if (unknownErrorRatelimitFlag == True):
-                unknownErrorCount += 1
-                if (unknownErrorCount >= 10):
-                    print("It's been a while, lets see if we're still getting ratelimited.")
-                    unknownErrorCount = 0
-                    unknownErrorRateLimitFlag = False
-                print("We are getting ratelimited")
-                username, password = MySQLConnector.getAccount()
-                global userCreated #This isn't actually a recently created account, but we need to
-                #Define it as one so the program doesn't break
-                userCreated = username
-                print("Logging into account - Username: " + str(username) + " Password: " + str(password))
-                logIntoAccount(username, password)
-                accountJustCreated = False
+            #Initialize selenium
+    
+            initSelenium()
+
+            if (countFiles(r"cookies") < 5): #If we have less than 5 cookies
+                #If we aren't getting ratelimited, create a new account. Otherwise, use on that already exist.
+                if (unknownErrorRatelimitFlag == True):
+                    unknownErrorCount += 1
+                    if (unknownErrorCount >= 10):
+                        print("It's been a while, lets see if we're still getting ratelimited.")
+                        unknownErrorCount = 0
+                        unknownErrorRateLimitFlag = False
+                    print("We are getting ratelimited")
+                    username, password = MySQLConnector.getAccount()
+                    userCreated = username #This isn't actually a recently created account, but we need to
+                    #Define it as one so the program doesn't break
+                    print("Logging into account - Username: " + str(username) + " Password: " + str(password))
+                    logIntoAccount(username, password)
+                    accountJustCreated = False
+                else:
+                    createAccount(genRandomString(),genRandomString())
+                    time.sleep(master_delay)
+                    validateAccount()
+                    accountJustCreated = True
             else:
-                createAccount(genRandomString(),genRandomString())
-                time.sleep(master_delay)
-                validateAccount()
-                accountJustCreated = True
-            
+                #Otherwise, use cookies.
+                goToLogon()
+                try:
+                    accountcookies = glob.glob(r"C:\Users\Admin1\Desktop\Main\cookies\*.txt")
+                    while True:
+                        toCheck = random.choice(accountcookies)
+                        toTest = toCheck[37:(len(toCheck) - 4)]
+                        if (toTest != userCreated):
+                            changeCookies.load_cookie(browser, toCheck)
+                            UserCreated = toTest
+                            time.sleep(1)
+                            browser.refresh()
+                            break
+                except Exception as ex:
+                    print(f"Couldn't load cookies. Here's the error message: {ex}")
+
+            #Assuming you are logged into an account at this point, try to grab the cookies
+            try:
+                file = f"cookies/{userCreated}.txt" #If we already don't have cookies
+                if (exists(file) != True):
+                    changeCookies.saveAccountCookie(browser, userCreated)
+            except Exception as ex:
+                print("Couldn't grab cookies. Here is the error message:")
+                print(ex)
+
             goToGroup()
             time.sleep(master_delay)
             
@@ -990,12 +1038,7 @@ if __name__ == "__main__":
                 print("Browser close error")
             time.sleep(1)
             
-            killThreads()
 
     print("Script was executed 10 times. Running new program.")
-    
-    killThreads()
-
-    
-    cmd = "main.py"
+    cmd = "py main.py"
     os.system(cmd)
