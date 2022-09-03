@@ -63,6 +63,7 @@ def logIntoAccount(username, password):
     print("Done! Logged into account.")
     
 def save_cookie(driver, path):
+    path = r"cookies/" + path
     with open(path, 'wb') as filehandler:
         pickle.dump(driver.get_cookies(), filehandler)
 
@@ -86,4 +87,15 @@ tokens = ["d","d"]
 
 if __name__ == "__main__":
     
-    print("Hello world!")
+    global browser
+    chromedriver = "chromedriver.exe"
+    browser = webdriver.Chrome(executable_path=chromedriver)
+    browser.switch_to.window(browser.current_window_handle)
+    browser.set_page_load_timeout(30) #We don't want pages that take more than 30 seconds to load.
+    browser.maximize_window()
+    
+    print("This is the cookies script running as main!")
+    
+    while True:
+        username = input("input username!")
+        saveAccountCookie(browser, username)

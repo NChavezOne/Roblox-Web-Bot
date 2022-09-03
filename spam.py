@@ -4,7 +4,8 @@
 #Version 1 completed 8/15/22
 
 import os
-from os.paths import exists
+from os.path import exists
+import shutil
 
 import sys
 import time
@@ -81,6 +82,14 @@ stopCaptchaFlag = True
 global capoptions
 captions = list()
 
+global myGuess
+
+global globalGroup
+
+global machineLearnKilled
+global recordSKilled
+
+global captchaHandlerError
 #========================================
 
 def killThreads():
@@ -358,66 +367,128 @@ def openCaptcha():
 def handler(signum, frame):
     print("Crowd cheering found!")
     global stopCaptchaFlag
-    stopCaptchaFlag = True;
+    global globalGroup
+    group = globalGroup
     #Stop playing.
     #=======================
     if (group == True):
         pyautogui.moveTo(840,411) #Position of play button
         pyautogui.click()
     elif (group == False):
-        pyautogui.moveTo(830,600) #Other possible position
+        pyautogui.moveTo(830,610) #Other possible position
         pyautogui.click()
     #=======================
+    stopCaptchaFlag = True;
 
 def machineLearn():
     global capoptions
     capoptions = list()
     
-    files = glob.glob(r"Audio & Spectrograms/")
-    for f in files:
-        os.remove(f)
+    global myGuess
+    global machineLearnKilled
     
-    machinelearning.predictIfCrowd(r"Test Audio/Sample-3s.wav")
-    while (exists()
+    #==================================================
+    #Truncate Folder.
     
+    folder = r"Audio & Spectrograms"
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
     
+    #=================================================
     
-    capoptions.append(pred)
-    
-    print(f"PREDICTION: {pred[0][1]}")
-    if (pred[0][1] <= -8):
+    try:
+        machinelearning.predictIfCrowd(r"Test Audio/Sample-3s.wav")
+        while (exists(r"Audio & Spectrograms/option1.wav") != True):
+            pass
+        pred = machinelearning.predictIfCrowd(r"Audio & Spectrograms/option1.wav")
+        capoptions.append(pred[0][1])
+        
+        print(f"PREDICTION: {pred[0][1]}")
+        
+        thresh = -8
+        lower = -13
+        
+        if (pred[0][1] <= thresh and pred[0][1] > lower):
+            myGuess = 1
+            signal.raise_signal(2)
+            machineLearnKilled = True
+            return None
+        
+        while (exists(r"Audio & Spectrograms/option2.wav") != True):
+            pass
+        pred = machinelearning.predictIfCrowd(r"Audio & Spectrograms/option2.wav")
+        capoptions.append(pred[0][1])
+        
+        print(f"PREDICTION: {pred[0][1]}")
+        if (pred[0][1] <= thresh and pred[0][1] > lower):
+            myGuess = 2
+            signal.raise_signal(2)
+            machineLearnKilled = True
+            return None
+        
+        while (exists(r"Audio & Spectrograms/option3.wav") != True):
+            pass
+        pred = machinelearning.predictIfCrowd(r"Audio & Spectrograms/option3.wav")
+        capoptions.append(pred[0][1])
+        
+        print(f"PREDICTION: {pred[0][1]}")
+                
+        myGuess = capoptions.index(min(capoptions)) + 1
         signal.raise_signal(2)
         
-    if (len(capoptions) > 1):
-        if (pred[0][1] == min(capoptions)):
-            signal.raise_signal(2)
+        machineLearnKilled = True
+    except:
+        cprint.printColor("Unknown error. Trying with normal method.","RED")
+        machineLearnKilled = True
+        global captchaHandlerError
+        captchaHandlerError = True
+        return None
+        
     
 #Thread
 def recordS():
     #Audio recording thread.
-    print("Option 1:")
-    time.sleep(1.1) #Time for option one TTS
-    file = "option" + str(1)
-    audioDataRaw = recordAudio(3)
-    audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
-    audio.createFileFromData(r"Audio & Spectrograms/",AudioDataRaw,file,"wav")
+    global stopCaptchaFlag
+    global recordSKilled
     
-    print("Option 2:")
-    time.sleep(1.1) #Time for option Two TTS
-    file = "option" + str(2)
-    audioDataRaw = recordAudio(3)
-    audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
-    audio.createFileFromData(r"Audio & Spectrograms/",AudioDataRaw,file,"wav")
+    if (stopCaptchaFlag == False):
+        print("Option 1:")
+        time.sleep(1.1) #Time for option one TTS
+        if (stopCaptchaFlag == False):
+            file = "option" + str(1)
+            audioDataRaw = audio.recordAudio(3)
+            audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
+            audio.createFileFromData(r"Audio & Spectrograms/",audioDataRaw,file,"wav")
     
-    print("Option 3:")
-    time.sleep(1.1) #Time for option three TTS
-    file = "option" + str(3)
-    audioDataRaw = recordAudio(3)
-    audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
-    audio.createFileFromData(r"Audio & Spectrograms/",AudioDataRaw,file,"wav")
-    #Done recording audio.
+    if (stopCaptchaFlag == False):
+        print("Option 2:")
+        time.sleep(1.1) #Time for option Two TTS
+        if (stopCaptchaFlag == False):
+            file = "option" + str(2)
+            audioDataRaw = audio.recordAudio(3)
+            audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
+            audio.createFileFromData(r"Audio & Spectrograms/",audioDataRaw,file,"wav")
     
-
+    if (stopCaptchaFlag == False):
+        print("Option 3:")
+        time.sleep(1.1) #Time for option three TTS
+        if (stopCaptchaFlag == False):
+            file = "option" + str(3)
+            audioDataRaw = audio.recordAudio(3)
+            audioDataRaw = audioDataRaw[int(len(audioDataRaw)/10):int(len(audioDataRaw)-(len(audioDataRaw)/10))] #Cut off the first and last 10% of each audio clip.
+            audio.createFileFromData(r"Audio & Spectrograms/",audioDataRaw,file,"wav")
+            #Done recording audio.
+            stopCaptchaFlag = True
+    
+    recordSKilled = True
+    
 firstTime = True
 captchasuccess = list() #Depracated.
 
@@ -427,11 +498,24 @@ def crackCaptcha(group=False):
     global stopCaptchaFlag
     stopCaptchaFlag = False
     
+    global myGuess
+    
+    global globalGroup
+    globalGroup = group
+    
+    global machineLearnKilled
+    machineLearnKilled = False
+    global recordSKilled
+    recordSKilled = False
+    
+    global captchaHandlerError
+    captchaHandlerError = False 
+    
     pingClient(our_uuid)
     
     cprint.printColor("Attempting to crack captcha.","YELLOW")
     Captchas_Encountered += 1
-    if (Captchas_Encountered >= 10):
+    if (Captchas_Encountered >= 100):
         print("More than 10 captchas encountered, getting correct Mic.")
         audio.getCorrectMic()
         print("Restarting script.")
@@ -454,7 +538,7 @@ def crackCaptcha(group=False):
         pyautogui.moveTo(840,411) #Position of play button
         pyautogui.click()
     elif (group == False):
-        pyautogui.moveTo(830,600) #Other possible position
+        pyautogui.moveTo(830,610) #Other possible position
         pyautogui.click()
     #=======================
     
@@ -469,14 +553,42 @@ def crackCaptcha(group=False):
     
     time.sleep(2)
     
-    audioService = threading.Thread(target = machineLearn, args = (option,1))
+    audioService = threading.Thread(target = machineLearn, args = ())
     audioService.start()
     
-    recordService = threading.Thread(target = recordS, args = (,))
+    recordService = threading.Thread(target = recordS, args = ())
     recordService.start()
     
     #====================================
-    print("End of audio gathering.")
+    #print("End of audio gathering.")
+    
+    while(1):
+        time.sleep(0.25)
+        if(stopCaptchaFlag == True):
+            break
+    while(1):    
+        time.sleep(0.25)
+        if (machineLearnKilled == True and recordSKilled == True):
+            break
+    
+    #======================================
+    #Execute only if there's an error with the threader
+    
+    if (captchaHandlerError == True):
+        print("These are the machine learning results.")
+        options = list()
+        options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option1.wav"))
+        options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option2.wav"))
+        options.append(machinelearning.predictIfCrowd(r"Audio & Spectrograms/option3.wav"))
+        
+        i = 0
+        while (i<3):
+            options[i]=options[i][0][1]
+            i+=1
+        
+        myGuess = options.index(min(options)) + 1
+        
+    
     
     print("My guess for the crowd cheering is " + str(myGuess))
     
@@ -550,15 +662,15 @@ def crackCaptcha(group=False):
     print("Pressing Enter...")
     keyboard.send('enter')
     
-    print("Waiting 3 second...")
-    time.sleep(3)
+    print("Waiting 0.5 second...")
+    time.sleep(0.5)
     
     browser.switch_to.default_content()
     if (isElementPresentByID("fc-iframe-wrap") == True):
         print("fc-iframe-wrap still here! Waiting 0.5 second.")
         iframe = browser.find_element(By.ID,"fc-iframe-wrap")
         browser.switch_to.frame(iframe)
-        time.sleep(0.5)
+        #time.sleep(0.5)
         
         if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Use of the audio challenge for this user has been unusually high. Please try again.')]"))) >= 1):
             print("Roblox ratelimitting us.")
@@ -567,7 +679,7 @@ def crackCaptcha(group=False):
         
         if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
             print("CaptchaFrame and close button found, wait 0.5 seconds.")
-            time.sleep(0.5)
+            #time.sleep(0.5)
             #pyautogui.moveTo(1450,715) #random position
             #pyautogui.click()
             browser.switch_to.default_content()
@@ -684,6 +796,26 @@ def pingClient(uuid):
             print(ex)
             print("Error pinging client, try again next cycle.")
 
+
+global most_recent
+def ChangeCookieAcc():
+    browser.get("https://www.roblox.com/login")
+    
+    #accounts = glob.glob(r"cookies/*.txt")
+    #test = random.choice(x)
+    #test = test[8:len(test)] - ".txt"
+    
+    if (most_recent == 1):
+        val = 0
+    if (most_recent == 0):
+        val = 1
+    most_recent = val
+    changeCookies.load_cookie(browser, accounts[val])
+    browser.refresh()
+    user = x
+    print(f"Logged into {user}")
+    time.sleep(1)
+
 global our_uuid
 global unknownErrorCount
 global stop_threads
@@ -736,17 +868,24 @@ if __name__ == "__main__":
             else:
                 audio.getCorrectMic()
                 
-    #audio.getCorrectMic()
-    audio.setMic(0)
+    audio.getCorrectMic()
+    #audio.setMic(3)
     
     #=================================
     #Testing on 9/2 get some cookies
     
-    while True:
-        username, password  = MySQLConnector.getAccount()
-        logIntoAccount(username,password)
-        changeCookies.saveAccountCookie(browser, username)
-        time.sleep(1)
+    asdf = False
+    if (asdf == True):
+        print("Cycled through all accounts.")
+        
+        while True:
+            username, password  = MySQLConnector.getAccount()
+            logIntoAccount(username,password)
+            time.sleep(5)
+            print("Saving cookies")
+            changeCookies.saveAccountCookie(browser, username)
+            print("Done.")
+            time.sleep(5)
     
     #Main program loop
     times_executed = 0
