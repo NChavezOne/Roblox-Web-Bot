@@ -831,26 +831,6 @@ def pingClient(uuid):
             print(ex)
             print("Error pinging client, try again next cycle.")
 
-
-global most_recent
-def ChangeCookieAcc():
-    browser.get("https://www.roblox.com/login")
-    
-    #accounts = glob.glob(r"cookies/*.txt")
-    #test = random.choice(x)
-    #test = test[8:len(test)] - ".txt"
-    
-    if (most_recent == 1):
-        val = 0
-    if (most_recent == 0):
-        val = 1
-    most_recent = val
-    changeCookies.load_cookie(browser, accounts[val])
-    browser.refresh()
-    user = x
-    print(f"Logged into {user}")
-    time.sleep(1)
-
 global our_uuid
 global unknownErrorCount
 global stop_threads
@@ -972,9 +952,10 @@ if __name__ == "__main__":
                         toTest = toCheck[37:(len(toCheck) - 4)]
                         if (toTest != userCreated):
                             changeCookies.load_cookie(browser, toCheck)
-                            UserCreated = toTest
+                            userCreated = toTest
                             time.sleep(1)
                             browser.refresh()
+                            print(f"Logged into account {userCreated}")
                             break
                 except Exception as ex:
                     print(f"Couldn't load cookies. Here's the error message: {ex}")
@@ -1020,6 +1001,7 @@ if __name__ == "__main__":
             
             tempstring = "Program over. You have sent " + str(messagesSent) + " message(s)"
             
+            print (tempstring)
             MySQLConnector.insertMachineLearning(messagesSent, 1)
             
             accountJustCreated = False
