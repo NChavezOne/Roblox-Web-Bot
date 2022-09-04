@@ -199,16 +199,26 @@ def waitForTextInScope(text):
 #Other Function defines
 
 def infectGroup():
+    global unknownErrorRatelimitFlag
+
     i = countFiles(f"cookies/{our_uuid}/{current_group}")
     while (i < 5):
         global accountJustCreated
         browser.close()
         initSelenium()
-        browser.get("https://roblox.com/login")
-        createAccount(genRandomString(),genRandomString())
-        time.sleep(master_delay)
-        validateAccount()
-        accountJustCreated = True
+        if (unknownErrorRatelimitFlag != True):
+            browser.get("https://roblox.com/login")
+            createAccount(genRandomString(),genRandomString())
+            time.sleep(master_delay)
+            validateAccount()
+            accountJustCreated = True
+        else:
+            username, password = MySQLConnector.getAccount()
+            logIntoAccount(username,password)
+            time.sleep(master_delay)
+            accountJustCreated = True
+            userCreated = username
+            unknownErrorRatelimitFlag = False
 
         browser.get(current_group_link)
         joinGroup()
