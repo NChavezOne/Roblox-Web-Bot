@@ -945,8 +945,8 @@ if __name__ == "__main__":
             else:
                 audio.getCorrectMic()
                 
-    #audio.getCorrectMic()
-    audio.setMic(3)
+    audio.getCorrectMic()
+    #audio.setMic(3)
     
     #=================================
     #Truncate the cookies folder.
