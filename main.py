@@ -924,6 +924,7 @@ if __name__ == "__main__":
     global current_group_link
 
     global capcheck
+    capcheck = True
 
     #Connect to the client monitoring script, and begin periodic pining
     
