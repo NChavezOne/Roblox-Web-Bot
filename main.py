@@ -22,6 +22,7 @@ import PIL.ImageGrab
 #==============================
 #Global imports for pip installs
 
+import pickle #not sure if global or generic
 import pyautogui
 pyautogui.FAILSAFE = False #Disable the pyautogui failsafe, so it can click in corners
 import pyperclip
@@ -92,6 +93,9 @@ global Captchas_Encountered
 global master_delay
 master_delay = 1 #master delay, for various page loading tasks
 
+global current_group
+global current_group_link
+
 #========================================
 #Operating system related functions
 
@@ -114,6 +118,19 @@ def truncateFolder(folder):
         except Exception as e:
             print('Failed to delete %s. Reason: %s' % (file_path, e))
 
+def createAccountFolder(dirname):
+    directory = dirname
+    parent_dir = r"cookies/"
+    path = os.path.join(parent_dir, directory)
+    os.mkdir(path)
+    return None
+
+def createGroupFolder(account, dirname):
+    directory = dirname
+    parent_dir = f"cookies/{account}/"
+    path = os.path.join(parent_dir, directory)
+    os.mkdir(path)
+    return None
 #========================================
 #Web automation related functions
 
@@ -173,6 +190,34 @@ def waitForTextInScope(text):
 
 #========================================
 #Other Function defines
+
+def infectGroup():
+    i = countFiles(f"cookies/{our_uuid}/{current_group}")
+    while (i < 6):
+        global accountJustCreated
+        browser.close()
+        initSelenium()
+        browser.get("https://roblox.com/login")
+        createAccount(genRandomString(),genRandomString())
+        time.sleep(master_delay)
+        validateAccount()
+        accountJustCreated = True
+
+        browser.get(current_group_link)
+        joinGroup()
+
+        browser.get("https://roblox.com/login")
+        time.sleep(1)
+        
+        path = f"cookies/{our_uuid}/{current_group}/{userCreated}.txt"
+        with open(path, 'wb') as filehandler:
+            pickle.dump(browser.get_cookies(), filehandler)
+        
+        print("Account created!")
+        time.sleep(1)
+        i += 1
+    browser.close()
+    initSelenium()
 
 def initTensorFlow():
     machinelearning.predictIfCrowd(r"Test Audio/Sample-3s.wav")
@@ -298,6 +343,20 @@ def goToGroup():
     browser.get(group)
     browser.maximize_window()
 
+def getGroupName():
+    url = browser.current_url
+    substr = url.find(r"#!")
+    url = url[0:substr]
+    index = 0
+    while (True):
+        if (url.find("/") == -1):
+            break
+        index = url.find("/")
+        index += 1
+        url = url[index:len(url)]
+    return url
+
+
 def joinGroup():
     print("Attempting to join group.")
     i = 0
@@ -327,6 +386,7 @@ def joinGroup():
 
 def sendMessage(message="message"):
     
+    pingClient(our_uuid)
     print("Sending message!")
    
     pyperclip.copy(message)
@@ -714,59 +774,63 @@ def crackCaptcha(group=False):
     time.sleep(0.5)
     
     browser.switch_to.default_content()
-    if (isElementPresentByID("fc-iframe-wrap") == True):
-        print("fc-iframe-wrap still here! Waiting 0.5 second.")
-        iframe = browser.find_element(By.ID,"fc-iframe-wrap")
-        browser.switch_to.frame(iframe)
-        #time.sleep(0.5)
-        
-        if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
-            print("Roblox ratelimitting us.")
-            time.sleep(1)
-            breakout = (2 / 0)
-        
-        if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
-            print("CaptchaFrame and close button found, wait 0.5 seconds.")
+    try:
+        if (isElementPresentByID("fc-iframe-wrap") == True):
+            print("fc-iframe-wrap still here! Waiting 0.5 second.")
+            iframe = browser.find_element(By.ID,"fc-iframe-wrap")
+            browser.switch_to.frame(iframe)
+            #time.sleep(0.5)
+            
+            if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
+                print("Roblox ratelimitting us.")
+                time.sleep(1)
+                breakout = (2 / 0)
+            
+            if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
+                print("CaptchaFrame and close button found, wait 0.5 seconds.")
 
-            browser.switch_to.default_content()
-            if (isElementPresentByID("fc-iframe-wrap") == True):
-                iframe = browser.find_element(By.ID,"fc-iframe-wrap")
-                browser.switch_to.frame(iframe)
-                if (isElementPresentByID("CaptchaFrame") == True):
-                    iframe = browser.find_element(By.ID,"CaptchaFrame")
+                browser.switch_to.default_content()
+                if (isElementPresentByID("fc-iframe-wrap") == True):
+                    iframe = browser.find_element(By.ID,"fc-iframe-wrap")
                     browser.switch_to.frame(iframe)
-                    
-                    if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
-                        print("Roblox ratelimitting us.")
+                    if (isElementPresentByID("CaptchaFrame") == True):
+                        iframe = browser.find_element(By.ID,"CaptchaFrame")
+                        browser.switch_to.frame(iframe)
+                        
+                        if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
+                            print("Roblox ratelimitting us.")
+                            time.sleep(1)
+                            breakout = (2 / 0)
+                        
                         time.sleep(1)
-                        breakout = (2 / 0)
-                    
-                    time.sleep(1)
 
-                    #So this is a strange workaround. I couldn't figure out how to reliably
-                    #Detect duplicate captchas or if roblox throws more captchas, so
-                    #I actually just read the color value of one of the pixels on screen and
-                    #Check if it matches the color of the submit button lol
-                    
-                    #Modifying this workaround to make it more portable: instead of comparing
-                    #against a preset captchacolor, define the captcha color as encountered on
-                    #the first captcha.
-                    if (group == True):
-                        x ,y = 990, 461 #For joining groups
-                    if (group == False):
-                        x, y = 1008, 640 #For logging in and creating accouts
-                    rgb = PIL.ImageGrab.grab().load()[x,y]
-                    if (rgb == captchaColor):
-                        print("Captcha Color matches!")
-                        print("double checked, crack captcha")
-                        crackCaptcha(group) 
-                    else:
-                        print("Captcha Color doesn't match.")
-                        time.sleep(1)
-                print("Error, couldn't find captchaframe.")
-            print("Error, couldn't find fc-iframe again.")
-    print("No other captchas found.")
-    print("")
+                        #So this is a strange workaround. I couldn't figure out how to reliably
+                        #Detect duplicate captchas or if roblox throws more captchas, so
+                        #I actually just read the color value of one of the pixels on screen and
+                        #Check if it matches the color of the submit button lol
+                        
+                        #Modifying this workaround to make it more portable: instead of comparing
+                        #against a preset captchacolor, define the captcha color as encountered on
+                        #the first captcha.
+                        if (group == True):
+                            x ,y = 990, 461 #For joining groups
+                        if (group == False):
+                            x, y = 1008, 640 #For logging in and creating accouts
+                        rgb = PIL.ImageGrab.grab().load()[x,y]
+                        if (rgb == captchaColor):
+                            print("Captcha Color matches!")
+                            print("double checked, crack captcha")
+                            crackCaptcha(group) 
+                        else:
+                            print("Captcha Color doesn't match.")
+                            time.sleep(1)
+                    print("Error, couldn't find captchaframe.")
+                print("Error, couldn't find fc-iframe again.")
+    except:
+        print("Captcha checking error")
+        print("No other captchas found.")
+        print("")
+
 
 def sendThreeMessages():
     global sendPostFlag
@@ -852,6 +916,9 @@ if __name__ == "__main__":
     Global_Iterations = 1
     Captchas_Encountered = 0
     
+    global current_group
+    global current_group_link
+
     #Connect to the client monitoring script, and begin periodic pining
     
     clientConnector.connectToSQLClientService()
@@ -879,13 +946,18 @@ if __name__ == "__main__":
                 audio.getCorrectMic()
                 
     #audio.getCorrectMic()
-    audio.setMic(2)
+    audio.setMic(3)
     
     #=================================
     #Truncate the cookies folder.
 
     #truncateFolder(r"cookies")
-    userCreated = "2C2KG4F8PYWYHKNKMNYE"
+
+    #=================================
+    #Navigate to our cookie folder
+    folder = r"cookies/"
+    if (not exists(folder + our_uuid)):
+        createAccountFolder(our_uuid)
 
     #Main program loop
     times_executed = 0
@@ -922,35 +994,43 @@ if __name__ == "__main__":
     
             initSelenium()
 
-            if (countFiles(r"cookies") < 5): #If we have less than 5 cookies
+            goToGroup()
+            print("Going to group.")
+
+            current_group = getGroupName()
+            current_group_link = browser.current_url
+            if (not exists(f"cookies/{our_uuid}/{current_group}")):
+                uuid = our_uuid
+                createGroupFolder(our_uuid, current_group)
+
+            if (countFiles(f"cookies/{our_uuid}/{current_group}") < 5): #If we have less than 5 cookies
                 #If we aren't getting ratelimited, create a new account. Otherwise, use on that already exist.
-                if (unknownErrorRatelimitFlag == True):
-                    unknownErrorCount += 1
-                    if (unknownErrorCount >= 10):
-                        print("It's been a while, lets see if we're still getting ratelimited.")
-                        unknownErrorCount = 0
-                        unknownErrorRateLimitFlag = False
-                    print("We are getting ratelimited")
-                    username, password = MySQLConnector.getAccount()
-                    userCreated = username #This isn't actually a recently created account, but we need to
-                    #Define it as one so the program doesn't break
-                    print("Logging into account - Username: " + str(username) + " Password: " + str(password))
-                    logIntoAccount(username, password)
-                    accountJustCreated = False
-                else:
-                    createAccount(genRandomString(),genRandomString())
-                    time.sleep(master_delay)
-                    validateAccount()
-                    accountJustCreated = True
+                infectGroup()
             else:
                 #Otherwise, use cookies.
-                goToLogon()
                 try:
-                    accountcookies = glob.glob(r"C:\Users\Admin1\Desktop\Main\cookies\*.txt")
+                    files = f"cookies/{our_uuid}/{current_group}/"
+                    files2 = "*.txt"
+                    files3 = files + files2
+                    accountcookies = glob.glob(files3)
+                    try: userCreated
+                    except NameError: userCreated = "a"
                     while True:
-                        toCheck = random.choice(accountcookies)
-                        toTest = toCheck[37:(len(toCheck) - 4)]
-                        if (toTest != userCreated):
+                        if (len(userCreated) > 1):
+                            toCheck = random.choice(accountcookies)
+                            flen = len(files)
+                            toTest = toCheck[flen:(len(toCheck) - 4)]
+                            if (toTest != userCreated):
+                                changeCookies.load_cookie(browser, toCheck)
+                                userCreated = toTest
+                                time.sleep(1)
+                                browser.refresh()
+                                print(f"Logged into account {userCreated}")
+                                break
+                        else:
+                            toCheck = random.choice(accountcookies)
+                            flen = len(files)
+                            toTest = toCheck[flen:(len(toCheck) - 4)]
                             changeCookies.load_cookie(browser, toCheck)
                             userCreated = toTest
                             time.sleep(1)
@@ -960,21 +1040,9 @@ if __name__ == "__main__":
                 except Exception as ex:
                     print(f"Couldn't load cookies. Here's the error message: {ex}")
 
-            #Assuming you are logged into an account at this point, try to grab the cookies
-            try:
-                file = f"cookies/{userCreated}.txt" #If we already don't have cookies
-                if (exists(file) != True):
-                    changeCookies.saveAccountCookie(browser, userCreated)
-            except Exception as ex:
-                print("Couldn't grab cookies. Here is the error message:")
-                print(ex)
-
-            goToGroup()
             time.sleep(master_delay)
             
             #If it's a fresh account, we'll need to go straight to attempting to join the group.
-            if (accountJustCreated == True):
-                joinGroup()
             
             print("Waiting for post button...")
             i = 0
