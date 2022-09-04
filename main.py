@@ -145,6 +145,9 @@ def initSelenium():
     browser.switch_to.window(browser.current_window_handle)
     browser.set_page_load_timeout(30) #We don't want pages that take more than 30 seconds to load.
     browser.maximize_window()
+    
+    pyautogui.moveTo(840,411) #Random position
+    pyautogui.click()
 
 def isElementPresentByID(what):
     try: browser.find_element(By.ID, what)
@@ -420,6 +423,7 @@ def sendMessage(message="message"):
         cprint.printColor("Message sent failed.", "RED")
     
     time.sleep(0.5)
+    capcheck = True
     if (capcheck != True):
         checkForCaptcha(True)
 
