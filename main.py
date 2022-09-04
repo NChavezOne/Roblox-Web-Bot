@@ -96,6 +96,8 @@ master_delay = 1 #master delay, for various page loading tasks
 global current_group
 global current_group_link
 
+global capcheck
+
 #========================================
 #Operating system related functions
 
@@ -385,7 +387,8 @@ def joinGroup():
     time.sleep(1)
 
 def sendMessage(message="message"):
-    
+    global capcheck
+
     pingClient(our_uuid)
     print("Sending message!")
    
@@ -412,8 +415,9 @@ def sendMessage(message="message"):
     except:
         cprint.printColor("Message sent failed.", "RED")
     
-    time.sleep(1)
-    checkForCaptcha(True)
+    time.sleep(0.5)
+    if (capcheck != True):
+        checkForCaptcha(True)
 
     if (containsTextInScope("Unable to send post.")):
         print("Roblox says unable to send post.")
@@ -919,12 +923,14 @@ if __name__ == "__main__":
     global current_group
     global current_group_link
 
+    global capcheck
+
     #Connect to the client monitoring script, and begin periodic pining
     
     clientConnector.connectToSQLClientService()
     global our_uuid 
     our_uuid = clientConnector.returnUuid()
-    
+
     #=================================
 
     #Initialize tensorflow
@@ -1037,6 +1043,7 @@ if __name__ == "__main__":
                             browser.refresh()
                             print(f"Logged into account {userCreated}")
                             break
+                        capcheck = False
                 except Exception as ex:
                     print(f"Couldn't load cookies. Here's the error message: {ex}")
 
@@ -1080,6 +1087,7 @@ if __name__ == "__main__":
             time.sleep(2)
             
             times_executed += 1
+            capcheck = True
         except Exception as ex:
             print(ex)
             print("Either an error was encountered or a breakout occured. Going to start of script...")
