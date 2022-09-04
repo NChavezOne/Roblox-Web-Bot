@@ -193,7 +193,7 @@ def waitForTextInScope(text):
 
 def infectGroup():
     i = countFiles(f"cookies/{our_uuid}/{current_group}")
-    while (i < 6):
+    while (i < 5):
         global accountJustCreated
         browser.close()
         initSelenium()
