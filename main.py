@@ -423,7 +423,7 @@ def sendMessage(message="message"):
         cprint.printColor("Message sent failed.", "RED")
     
     time.sleep(0.5)
-    capcheck = True
+    capcheck = False
     if (capcheck != True):
         checkForCaptcha(True)
 
