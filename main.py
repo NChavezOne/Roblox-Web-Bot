@@ -98,6 +98,8 @@ global current_group_link
 
 global capcheck
 
+global joinbreaks
+
 #========================================
 #Operating system related functions
 
@@ -360,15 +362,17 @@ def getGroupName():
 
 
 def joinGroup():
+    global joinbreaks
     print("Attempting to join group.")
     i = 0
     while (isElementPresentByID("group-join-button") != True):
         cprint.printColor("Waiting for join button...","RED")
         browser.refresh()
-        time.sleep(2)
-        i += 2
-        if (i > 6):
+        time.sleep(1)
+        i += 1
+        if (i > 2):
             print("No join button, breaking out of function.")
+            joinBreaks += 1
             return 0
             
     if ((len(browser.find_elements("xpath", "//*[contains(text(), 'Unable to join group.')]"))) >= 1):
@@ -1053,6 +1057,8 @@ if __name__ == "__main__":
             
             #If it's a fresh account, we'll need to go straight to attempting to join the group.
             
+            global joinbreaks
+            joinbreaks = 0
             print("Waiting for post button...")
             i = 0
             while(1):
@@ -1065,6 +1071,9 @@ if __name__ == "__main__":
                     print("No postbutton. Try to join group again...")
                     joinGroup()
                     i = 0
+                if (joinbreaks >= 2):
+                    print("Joinbreak")
+                    breakout = (2 / 0)
             
             while(1):
                 if (isElementPresentByID("postButton") == True):
