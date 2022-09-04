@@ -1040,6 +1040,7 @@ if __name__ == "__main__":
                 except Exception as ex:
                     print(f"Couldn't load cookies. Here's the error message: {ex}")
 
+            browser.get(current_group)
             time.sleep(master_delay)
             
             #If it's a fresh account, we'll need to go straight to attempting to join the group.
