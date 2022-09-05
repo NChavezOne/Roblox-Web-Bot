@@ -405,6 +405,7 @@ def joinGroup():
 
 def sendMessage(message="message"):
     global capcheck
+    message = MySQLConnector.getRecentMessage()
 
     pingClient(our_uuid)
     print("Sending message!")
