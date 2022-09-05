@@ -929,7 +929,7 @@ def pingClient(uuid):
                 clientConnector.connectToSQLClientService()
             print("Client service pinged.")
 
-            if (clientConnector.get_ip_address == "10.0.0.9"): #If we are the server
+            if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
                 print("We are the server.")
                 last_backup = (datetime.datetime.now().isoformat(sep=" ", timespec="seconds")) - backed_up
                 if (last_backup >= 60):
