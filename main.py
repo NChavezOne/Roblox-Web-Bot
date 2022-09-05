@@ -684,9 +684,6 @@ def crackCaptcha(group=False):
     global captchaHandlerError
     captchaHandlerError = False 
     
-    #Ping client service to let them know we're alvie.
-    pingClient(our_uuid)
-    
     cprint.printColor("Attempting to crack captcha.","YELLOW")
     print("")
     Captchas_Encountered += 1
@@ -836,6 +833,9 @@ def crackCaptcha(group=False):
                             time.sleep(1)
                             breakout = (2 / 0)
 
+                        #Ping client service to let them know we're alvie.
+                        pingClient(our_uuid)
+
                         #So this is a strange workaround. I couldn't figure out how to reliably
                         #Detect duplicate captchas or if roblox throws more captchas, so
                         #I actually just read the color value of one of the pixels on screen and
@@ -852,7 +852,7 @@ def crackCaptcha(group=False):
                         if (rgb == captchaColor):
                             print("Captcha Color matches!")
                             print("double checked, crack captcha")
-                            crackCaptcha(group) 
+                            crackCaptcha(group)
                         else:
                             print("Captcha Color doesn't match.")
                             time.sleep(1)
@@ -862,6 +862,9 @@ def crackCaptcha(group=False):
         print("Captcha checking error")
         print("No other captchas found.")
         print("")
+
+    #Ping client service to let them know we're alvie.
+    pingClient(our_uuid)
 
 
 def sendThreeMessages():
@@ -927,7 +930,7 @@ def pingClient(uuid):
             print("Client service pinged.")
 
             if (clientConnector.get_ip_address == "10.0.0.9"): #If we are the server
-                last_backup = backed_up - (datetime.datetime.now().isoformat(sep=" ", timespec="seconds"))
+                last_backup = (datetime.datetime.now().isoformat(sep=" ", timespec="seconds")) - backed_up
                 if (last_backup >= 60):
                     backed_up = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
                     os.chdir(r"C:\xampp\mysql\bin")
