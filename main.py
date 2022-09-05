@@ -102,7 +102,7 @@ global capcheck
 global joinbreaks
 
 global iso_time
-iso_time = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+iso_time = int(time.time())
 
 global backed_up
 global last_backup
@@ -931,9 +931,9 @@ def pingClient(uuid):
 
             if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
                 print("We are the server.")
-                last_backup = (datetime.datetime.now().isoformat(sep=" ", timespec="seconds")) - backed_up
+                last_backup = (int(time.time())) - backed_up
                 if (last_backup >= 60):
-                    backed_up = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+                    backed_up = int(time.time())
                     os.chdir(r"C:\xampp\mysql\bin")
                     time.sleep(0.5)
                     SQLBackup.createConnection()
@@ -976,7 +976,7 @@ if __name__ == "__main__":
     capcheck = True
 
     global backed_up
-    backed_up = (datetime.datetime.now().isoformat(sep=" ", timespec="seconds"))
+    backed_up = int(time.time())
 
     #Connect to the client monitoring script, and begin periodic pining
     
