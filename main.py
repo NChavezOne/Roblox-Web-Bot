@@ -937,10 +937,22 @@ def pingClient(uuid):
                     backed_up = int(time.time())
                     print("Attempting to backup SQL database.")
                     os.chdir(r"C:\xampp\mysql\bin")
+                    
+                    time.sleep(1)
+                    pyautogui.moveTo(152,243) #position of cmd
+                    pyautogui.click()
+                    time.sleep(1)
+
                     time.sleep(0.5)
                     SQLBackup.createConnection()
                     time.sleep(0.5)
                     os.chdir(r"C:\Users\Admin\Desktop\Main")
+
+                    time.sleep(1)
+                    pyautogui.moveTo(830,610) #position on browser
+                    pyautogui.click()
+                    time.sleep(1)
+                    
                 else:
                     print(f"last backup:{last_backup}")
             else:
