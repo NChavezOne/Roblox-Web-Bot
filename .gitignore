@@ -1,3 +1,4 @@
 # ignore ALL .exe files
 *.exe
 *.txt
+*.pyc
