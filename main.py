@@ -815,9 +815,6 @@ def crackCaptcha(group=False):
                 print("Roblox ratelimitting us.")
                 time.sleep(1)
                 breakout = (2 / 0)
-            if (containsTextInScope("Incorrect") == True):
-                print("We've failed that captcha. Try again.")
-                crackCaptcha(group)
 
             if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
                 print("CaptchaFrame and close button found, wait 0.5 seconds.")
@@ -838,9 +835,6 @@ def crackCaptcha(group=False):
                             print("Roblox ratelimitting us.")
                             time.sleep(1)
                             breakout = (2 / 0)
-                        if (containsTextInScope("Incorrect") == True):
-                            print("We've failed that captcha. Try again.")
-                            crackCaptcha(group)
 
                         #So this is a strange workaround. I couldn't figure out how to reliably
                         #Detect duplicate captchas or if roblox throws more captchas, so
