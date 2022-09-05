@@ -51,6 +51,7 @@ import clientUpdater
 import audio
 import MySQLConnector
 import changeCookies
+import SQLBackup
 
 #==================
 #Global variable defines
