@@ -803,11 +803,6 @@ def crackCaptcha(group=False):
     print("Waiting 0.5 second...")
     time.sleep(0.5)
     
-    while (containsTextInScope("Working, please wait")):
-        print("Loading...")
-    if (containsTextInScope("Incorrect") == True):
-        print("We've failed that captcha. Try again.")
-        crackCaptcha(group)
     browser.switch_to.default_content()
     try:
         if (isElementPresentByID("fc-iframe-wrap") == True):
@@ -816,8 +811,6 @@ def crackCaptcha(group=False):
             browser.switch_to.frame(iframe)
             #time.sleep(0.5)
             
-            while (containsTextInScope("Working, please wait")):
-                print("Loading...")
             if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
                 print("Roblox ratelimitting us.")
                 time.sleep(1)
