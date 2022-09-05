@@ -77,7 +77,7 @@ def createConnection():
         #Backup the SQL database
         backupservice = threading.Thread(target=(backupDatabase),args=(),daemon=True)
         backupservice.start()
-        os.system(r"mysqldump -u root -p maindatabase > backup.sql")
+        os.system(f"mysqldump -u root -p maindatabase > backup.sql")
         time.sleep(3)
         cprint.printColor("Connection successful. Backed up SQL database.","GREEN")
         #=======================

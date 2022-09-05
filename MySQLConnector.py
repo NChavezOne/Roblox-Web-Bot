@@ -110,7 +110,7 @@ def pingClient(uuid, os_name, **kwargs):
         unix_time = int(time.time())
 
         sql = "SELECT * FROM clientconnector WHERE uuid = %s"
-        val = (uuid) #Check if the client exists.
+        val = (uuid,) #Check if the client exists.
         mycursor.execute(sql, val)
         myresult = mycursor.fetchall()
         if (len(myresult) < 1):

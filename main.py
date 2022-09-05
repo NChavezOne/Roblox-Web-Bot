@@ -18,6 +18,7 @@ import threading
 import signal
 import numpy
 import PIL.ImageGrab
+import datetime
 
 #==============================
 #Global imports for pip installs
@@ -99,6 +100,12 @@ global current_group_link
 global capcheck
 
 global joinbreaks
+
+global iso_time
+iso_time = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+
+global backed_up
+global last_backup
 
 #========================================
 #Operating system related functions
@@ -930,6 +937,18 @@ def pingClient(uuid):
             if (MySQLConnector.pingClient(uuid, device_name, git_commit = client_upd[0:5]) == False):
                 clientConnector.connectToSQLClientService()
             print("Client service pinged.")
+
+            if (clientConnector.get_ip_address == "10.0.0.9"): #If we are the server
+                last_backup = backed_up - (datetime.datetime.now().isoformat(sep=" ", timespec="seconds"))
+                if (last_backup >= 60):
+                    global backed_up
+                    backed_up = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+                    os.chdir(r"C:\xampp\mysql\bin")
+                    time.sleep(0.5)
+                    SQLBackup.createConnection()
+                    time.sleep(0.5)
+                    os.chdir(r"C:\Users\Admin\Desktop\Main")
+                
         except Exception as ex:
             print(ex)
             print("Error pinging client, try again next cycle.")
@@ -960,6 +979,9 @@ if __name__ == "__main__":
 
     global capcheck
     capcheck = True
+
+    global backed_up
+    backed_up = (datetime.datetime.now().isoformat(sep=" ", timespec="seconds"))
 
     #Connect to the client monitoring script, and begin periodic pining
     
