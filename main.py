@@ -935,6 +935,7 @@ def pingClient(uuid):
                 last_backup = (int(time.time())) - backed_up
                 if (last_backup >= 60):
                     backed_up = int(time.time())
+                    print("Attempting to backup SQL database.")
                     os.chdir(r"C:\xampp\mysql\bin")
                     time.sleep(0.5)
                     SQLBackup.createConnection()
