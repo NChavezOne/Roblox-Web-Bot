@@ -72,6 +72,15 @@ def load_cookie(driver, path):
          cookies = pickle.load(cookiesfile)
          for cookie in cookies:
             driver.add_cookie(cookie)
+
+def load_cookie_raw(browser, cookiesdata):
+    file = open(r"cookies/temp.txt", 'wb')
+    file.write(cookiesdata)
+    file.close()
+    with open(r"cookies/temp.txt", 'rb') as cookiesfile:
+        cookies = pickle.load(cookiesfile)
+        for cookie in cookies:
+            browser.add_cookie(cookie)
              
 def saveAccountCookie(browser, username):
     file = f"{username}.txt"

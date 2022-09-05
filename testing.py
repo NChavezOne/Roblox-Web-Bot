@@ -2,5 +2,8 @@ import SQLBackup
 import os
 import time
 
-
-print(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+import pickle
+import main
+browser = main.initSelenium()
+browser.get("https://roblox.com/login")
+print(pickle.dumps(browser.get_cookies()))

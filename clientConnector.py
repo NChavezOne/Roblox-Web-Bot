@@ -21,6 +21,8 @@ global uuid_global
 
 global external_ip
 external_ip = urllib.request.urlopen('https://v4.ident.me').read().decode('utf8')
+def get_external_ip():
+    return urllib.request.urlopen('https://v4.ident.me').read().decode('utf8')
 
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

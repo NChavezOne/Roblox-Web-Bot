@@ -78,6 +78,35 @@ def createConnection():
         
         
 #==================================
+def insertCookie(ipaddress, internalip, groupname, cookiedata, username):
+    if createConnection():
+        mycursor = mydb.cursor()
+
+        sql = "INSERT INTO cookies (ipaddress, internalip, groupname, cookiedata, username) VALUES (%s, %s, %s, %s, %s)"
+        val = (ipaddress, internalip, groupname, cookiedata, username)
+        mycursor.execute(sql, val)
+
+        mydb.commit()
+        cprint.printColor("Cookie added to MySQL.", "CYAN")
+
+def getCookieUsers(ipaddress, internalip, groupname):
+    if createConnection():
+        mycursor = mydb.cursor()
+        sql = "SELECT cookiedata FROM cookies WHERE ipaddress = %s AND internalip = %s AND groupname = %s"
+        val = (ipaddress, internalip, groupname)
+        mycursor.execute(sql, val)
+        myresult = mycursor.fetchall()
+        return len(myresult)
+
+def getCookies(ipaddress, internalip, groupname):
+    if createConnection():
+        mycursor = mydb.cursor()
+        sql = "SELECT * FROM cookies WHERE ipaddress = %s AND internalip = %s AND groupname = %s"
+        val = (ipaddress, internalip, groupname)
+        mycursor.execute(sql, val)
+        myresult = mycursor.fetchall()
+        return myresult
+
 def createNewClient(uuid, ipaddress, internalip):
     if createConnection():
         mycursor = mydb.cursor()

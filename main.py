@@ -157,6 +157,8 @@ def initSelenium():
     pyautogui.moveTo(840,411) #Random position
     pyautogui.click()
 
+    return browser
+
 def isElementPresentByID(what):
     try: browser.find_element(By.ID, what)
     except NoSuchElementException: return False
@@ -209,9 +211,10 @@ def waitForTextInScope(text):
 def infectGroup():
     global unknownErrorRatelimitFlag
 
-    i = countFiles(f"cookies/{our_uuid}/{current_group}")
+    i = MySQLConnector.getCookieUsers(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group)
     while (i < 2):
         global accountJustCreated
+        global userCreated
         browser.close()
         initSelenium()
         if (unknownErrorRatelimitFlag != True):
@@ -234,32 +237,14 @@ def infectGroup():
         browser.get("https://roblox.com/login")
         time.sleep(1)
         
-        path = f"cookies/{our_uuid}/{current_group}/{userCreated}.txt"
-        with open(path, 'wb') as filehandler:
-            pickle.dump(browser.get_cookies(), filehandler)
-        
+        try:
+            MySQLConnector.insertCookie(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group,pickle.dumps(browser.get_cookies()),userCreated)
+        except Exception as ex:
+            print(f"Couldn't insert cookie. Here's the error message: {ex}")
+
         print("Account created!")
         time.sleep(1)
         i += 1
-
-        #==========================================
-        #TEMPORARY FIX: JUST COMMIT FOR EVERY COOKIE WE GET
-
-        shutil.copyfile(f"cookies/{our_uuid}/{current_group}/{userCreated}.txt", os.pardir)
-        parent_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-        file = f"{parent_dir}/{userCreated}.txt"
-
-        if (clientUpdater.upDateIfPossible()):
-            print("New commit, updating.")
-            os.system("git reset --hard HEAD")
-            os.system("git pull origin main")
-            time.sleep(2)
-            os.system("main.py")
-            sys.exit()
-
-        os.system(f"git add {userCreated}.txt")
-
-        #=========================================
 
     browser.close()
     initSelenium()
@@ -1092,39 +1077,37 @@ if __name__ == "__main__":
 
             current_group = getGroupName()
             current_group_link = browser.current_url
-            if (not exists(f"cookies/{our_uuid}/{current_group}")):
-                uuid = our_uuid
-                createGroupFolder(our_uuid, current_group)
 
-            if (countFiles(f"cookies/{our_uuid}/{current_group}") < 2): #If we have less than 5 cookies
+            if (MySQLConnector.getCookieUsers(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group) < 2): #If we have less than 5 cookies
                 #If we aren't getting ratelimited, create a new account. Otherwise, use on that already exist.
                 infectGroup()
             else:
                 #Otherwise, use cookies.
                 try:
-                    files = f"cookies/{our_uuid}/{current_group}/"
-                    files2 = "*.txt"
-                    files3 = files + files2
-                    accountcookies = glob.glob(files3)
                     try: userCreated
                     except NameError: userCreated = "a"
                     while True:
+                        cprint.printColor("Loading cookie...","MAGENTA")
                         if (len(userCreated) > 1):
-                            toCheck = random.choice(accountcookies)
-                            flen = len(files)
-                            toTest = toCheck[flen:(len(toCheck) - 4)]
+                            toCheckCookie = bytes()
+                            toCheckCookie = MySQLConnector.getCookies(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group)
+                            toCheckCookie = random.choice(toCheckCookie)
+                            toCheck = toCheckCookie[4]
+                            toTest = toCheck
                             if (toTest != userCreated):
-                                changeCookies.load_cookie(browser, toCheck)
+                                changeCookies.load_cookie_raw(browser, toCheckCookie[3])
                                 userCreated = toTest
                                 time.sleep(1)
                                 browser.refresh()
                                 print(f"Logged into account {userCreated}")
                                 break
                         else:
-                            toCheck = random.choice(accountcookies)
-                            flen = len(files)
-                            toTest = toCheck[flen:(len(toCheck) - 4)]
-                            changeCookies.load_cookie(browser, toCheck)
+                            toCheckCookie = bytes()
+                            toCheckCookie = MySQLConnector.getCookies(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group)
+                            toCheckCookie = random.choice(toCheckCookie)
+                            toCheck = toCheckCookie[4]
+                            toTest = toCheck
+                            changeCookies.load_cookie_raw(browser, toCheckCookie[3])
                             userCreated = toTest
                             time.sleep(1)
                             browser.refresh()
