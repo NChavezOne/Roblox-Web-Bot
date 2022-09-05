@@ -119,7 +119,7 @@ def pingClient(uuid, os_name, **kwargs):
                 return False
         except:
             print("Client returns error. Connecting.")
-                return False
+            return False
 
         sql = "UPDATE clientconnector SET lastpinged = %s WHERE uuid = %s"
         val = (unix_time, uuid) #We are pinging in unix time, seconds.
