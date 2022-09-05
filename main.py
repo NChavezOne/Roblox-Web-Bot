@@ -796,6 +796,11 @@ def crackCaptcha(group=False):
     print("Waiting 0.5 second...")
     time.sleep(0.5)
     
+    while (containsTextInScope("Working, please wait")):
+        print("Loading...")
+    if (containsTextInScope("Incorrect") == True):
+        print("We've failed that captcha. Try again.")
+        crackCaptcha(group)
     browser.switch_to.default_content()
     try:
         if (isElementPresentByID("fc-iframe-wrap") == True):
@@ -804,11 +809,16 @@ def crackCaptcha(group=False):
             browser.switch_to.frame(iframe)
             #time.sleep(0.5)
             
+            while (containsTextInScope("Working, please wait")):
+                print("Loading...")
             if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
                 print("Roblox ratelimitting us.")
                 time.sleep(1)
                 breakout = (2 / 0)
-            
+            if (containsTextInScope("Incorrect") == True):
+                print("We've failed that captcha. Try again.")
+                crackCaptcha(group)
+
             if ((isElementPresentByID("CaptchaFrame") == True) and (isElementPresentByID("fc_meta_changeback") == True)):
                 print("CaptchaFrame and close button found, wait 0.5 seconds.")
 
@@ -819,17 +829,18 @@ def crackCaptcha(group=False):
                     if (isElementPresentByID("CaptchaFrame") == True):
                         iframe = browser.find_element(By.ID,"CaptchaFrame")
                         browser.switch_to.frame(iframe)
-                        
+
+                        time.sleep(1)
+
+                        while (containsTextInScope("Working, please wait")):
+                            print("Loading...")
                         if (containsTextInScope("Use of the audio challenge for this user has been unusually high. Please try again.")):
                             print("Roblox ratelimitting us.")
                             time.sleep(1)
                             breakout = (2 / 0)
-                        
                         if (containsTextInScope("Incorrect") == True):
                             print("We've failed that captcha. Try again.")
                             crackCaptcha(group)
-
-                        time.sleep(1)
 
                         #So this is a strange workaround. I couldn't figure out how to reliably
                         #Detect duplicate captchas or if roblox throws more captchas, so
