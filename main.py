@@ -202,7 +202,7 @@ def infectGroup():
     global unknownErrorRatelimitFlag
 
     i = countFiles(f"cookies/{our_uuid}/{current_group}")
-    while (i < 5):
+    while (i < 2):
         global accountJustCreated
         browser.close()
         initSelenium()
@@ -1028,7 +1028,7 @@ if __name__ == "__main__":
                 uuid = our_uuid
                 createGroupFolder(our_uuid, current_group)
 
-            if (countFiles(f"cookies/{our_uuid}/{current_group}") < 5): #If we have less than 5 cookies
+            if (countFiles(f"cookies/{our_uuid}/{current_group}") < 2): #If we have less than 5 cookies
                 #If we aren't getting ratelimited, create a new account. Otherwise, use on that already exist.
                 infectGroup()
             else:
