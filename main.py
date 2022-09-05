@@ -930,6 +930,7 @@ def logIntoAccount(username, password):
     
 def pingClient(uuid):
     global our_uuid
+    global backed_up
     if(True):
         uuid = our_uuid
         client_upd = clientUpdater.getCurrentCommit()
@@ -941,7 +942,6 @@ def pingClient(uuid):
             if (clientConnector.get_ip_address == "10.0.0.9"): #If we are the server
                 last_backup = backed_up - (datetime.datetime.now().isoformat(sep=" ", timespec="seconds"))
                 if (last_backup >= 60):
-                    global backed_up
                     backed_up = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
                     os.chdir(r"C:\xampp\mysql\bin")
                     time.sleep(0.5)
