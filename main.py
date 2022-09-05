@@ -930,6 +930,7 @@ def pingClient(uuid):
             print("Client service pinged.")
 
             if (clientConnector.get_ip_address == "10.0.0.9"): #If we are the server
+                print("We are the server.")
                 last_backup = (datetime.datetime.now().isoformat(sep=" ", timespec="seconds")) - backed_up
                 if (last_backup >= 60):
                     backed_up = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
@@ -938,7 +939,11 @@ def pingClient(uuid):
                     SQLBackup.createConnection()
                     time.sleep(0.5)
                     os.chdir(r"C:\Users\Admin\Desktop\Main")
-                
+                else:
+                    print(f"last backup:{last_backup}")
+            else:
+                print("We are not the server.")
+
         except Exception as ex:
             print(ex)
             print("Error pinging client, try again next cycle.")
