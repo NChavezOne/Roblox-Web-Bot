@@ -241,6 +241,26 @@ def infectGroup():
         print("Account created!")
         time.sleep(1)
         i += 1
+
+        #==========================================
+        #TEMPORARY FIX: JUST COMMIT FOR EVERY COOKIE WE GET
+
+        shutil.copyfile(f"cookies/{our_uuid}/{current_group}/{userCreated}.txt", os.pardir)
+        parent_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+        file = f"{parent_dir}/{userCreated}.txt"
+
+        if (clientUpdater.upDateIfPossible()):
+            print("New commit, updating.")
+            os.system("git reset --hard HEAD")
+            os.system("git pull origin main")
+            time.sleep(2)
+            os.system("main.py")
+            sys.exit()
+
+        os.system(f"git add {userCreated}.txt")
+
+        #=========================================
+
     browser.close()
     initSelenium()
 
@@ -1046,7 +1066,7 @@ if __name__ == "__main__":
                 stop_threads = True
                 print('thread killed')
                 time.sleep(2)
-                os.system("main.py")
+                os.system("py main.py")
                 sys.exit()
             
             #Get the mode we are operating in.
