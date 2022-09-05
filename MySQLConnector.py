@@ -109,13 +109,17 @@ def pingClient(uuid, os_name, **kwargs):
         global unix_time
         unix_time = int(time.time())
 
-        sql = "SELECT * FROM clientconnector WHERE uuid = %s"
-        val = (uuid,) #Check if the client exists.
-        mycursor.execute(sql, val)
-        myresult = mycursor.fetchall()
-        if (len(myresult) < 1):
-            print("Client does not exist. Connecting.")
-            return False
+        try:
+            sql = "SELECT * FROM clientconnector WHERE uuid = %s"
+            val = (uuid,) #Check if the client exists.
+            mycursor.execute(sql, val)
+            myresult = mycursor.fetchall()
+            if (len(myresult) < 1):
+                print("Client does not exist. Connecting.")
+                return False
+        except:
+            print("Client returns error. Connecting.")
+                return False
 
         sql = "UPDATE clientconnector SET lastpinged = %s WHERE uuid = %s"
         val = (unix_time, uuid) #We are pinging in unix time, seconds.
