@@ -825,6 +825,10 @@ def crackCaptcha(group=False):
                             time.sleep(1)
                             breakout = (2 / 0)
                         
+                        if (containsTextInScope("Incorrect") == True):
+                            print("We've failed that captcha. Try again.")
+                            crackCaptcha(group)
+
                         time.sleep(1)
 
                         #So this is a strange workaround. I couldn't figure out how to reliably
@@ -912,7 +916,8 @@ def pingClient(uuid):
         uuid = our_uuid
         client_upd = clientUpdater.getCurrentCommit()
         try:
-            MySQLConnector.pingClient(uuid, device_name, git_commit = client_upd[0:5])
+            if (MySQLConnector.pingClient(uuid, device_name, git_commit = client_upd[0:5]) == False):
+                clientConnector.connectToSQLClientService()
             print("Client service pinged.")
         except Exception as ex:
             print(ex)
