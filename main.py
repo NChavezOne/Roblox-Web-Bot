@@ -116,7 +116,7 @@ def updateSQLServer():
     #I thought teamviewer alerts might be messing stuff up so I was planning
     #On using pyautogui to close them but you can just disable them in the
     #Teamviewer settings
-    BACKUP_INTERVAL = 5 #Backup the database every 300 seconds
+    BACKUP_INTERVAL = 300 #Backup the database every 300 seconds
     if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
         if (firstCaptcha == True):
             print("Attempting to backup SQL database.")
