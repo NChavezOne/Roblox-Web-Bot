@@ -140,8 +140,6 @@ def updateSQLServer():
 
         else:
             if (int(time.time()) - backed_up > BACKUP_INTERVAL):
-                time.sleep(0.1)
-                time.sleep(0.1)
                 print("Attempting to backup SQL database.")
                 os.chdir(r"C:\xampp\mysql\bin")
                 
