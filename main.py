@@ -129,6 +129,7 @@ def updateSQLServer():
                 
             time.sleep(1)
             pyautogui.moveTo(152,243) #position of cmd
+            pyautogui.click()
             time.sleep(1)
 
             os.chdir(r"C:\xampp\mysql\bin")
