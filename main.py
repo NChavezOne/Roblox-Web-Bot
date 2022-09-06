@@ -126,13 +126,9 @@ def updateSQLServer():
             time.sleep(0.5)
             os.chdir(r"C:\Users\Admin\Desktop\Main")
 
-            pyautogui.moveTo(152,243) #position of cmd
-            pyautogui.click()
         else:
             if (int(time.time()) - backed_up > BACKUP_INTERVAL):
                 time.sleep(1)
-                pyautogui.moveTo(152,243) #position of cmd
-                pyautogui.click()
                 time.sleep(1)
                 print("Attempting to backup SQL database.")
                 os.chdir(r"C:\xampp\mysql\bin")
@@ -1053,8 +1049,7 @@ if __name__ == "__main__":
             if (clientUpdater.upDateIfPossible()):
                 os.system("git reset --hard HEAD")
                 os.system("git pull origin main")
-                stop_threads = True
-                print('thread killed')
+                cprint.printColor("Pulled latest commit from git.", "GREEN")
                 time.sleep(2)
                 os.system("py main.py")
                 sys.exit()
