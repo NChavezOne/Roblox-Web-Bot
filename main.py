@@ -974,7 +974,7 @@ if __name__ == "__main__":
     
     #First and foremost, if we are the server we want to attempt a backup or restore if possible
     
-    updateSQLServer()
+    #updateSQLServer()
     
     #Global defines and setting
     #VSCode says alot of these are defined before global declaration, however I don't encounter any problems at python runtime.
@@ -1055,9 +1055,6 @@ if __name__ == "__main__":
                 time.sleep(2)
                 os.system("py main.py")
                 sys.exit()
-            
-            #Next, backup the database if possible.
-            #updateSQLServer()
 
             #Get the mode we are operating in.
             global mode_operating
