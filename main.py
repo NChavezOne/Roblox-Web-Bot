@@ -1167,6 +1167,7 @@ if __name__ == "__main__":
             times_executed += 1
             capcheck = True
         except Exception as ex:
+            backed_up = int(time.time())
             print(ex)
             print("Either an error was encountered or a breakout occured. Going to start of script...")
             try:
