@@ -235,9 +235,13 @@ def backupDatabase():
     time.sleep(0.1)
     pyautogui.moveTo(152,243) #position of cmd
     pyautogui.click()
+    pyautogui.click()
+    pyautogui.click()
+    pyautogui.click()
+    pyautogui.click()
     time.sleep(0.1)
     
-    os.system(f"{sql_password}")
+    keyboard.write(f"{sql_password}")
     time.sleep(0.5)
     keyboard.send('enter')
     time.sleep(0.5)
