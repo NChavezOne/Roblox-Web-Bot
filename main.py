@@ -973,6 +973,16 @@ global stop_threads
 
 if __name__ == "__main__":
     
+    #First and foremost, if we are the server we want to attempt a backup or restore if possible
+    
+    if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
+        print("Attempting to backup SQL database.")
+        os.chdir(r"C:\xampp\mysql\bin")
+        time.sleep(0.5)
+        SQLBackup.createConnection()
+        time.sleep(0.5)
+        os.chdir(r"C:\Users\Admin\Desktop\Main")
+    
     #Global defines and setting
     #VSCode says alot of these are defined before global declaration, however I don't encounter any problems at python runtime.
     global userCreated 
