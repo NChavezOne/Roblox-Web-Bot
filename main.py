@@ -122,12 +122,15 @@ def updateSQLServer():
     if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
         if (firstCaptcha == True):
             print("Attempting to backup SQL database.")
+            
             time.sleep(1)
             pyautogui.moveTo(943,783) #position of logon button
             pyautogui.click()
                 
             time.sleep(1)
             pyautogui.moveTo(152,243) #position of cmd
+            time.sleep(1)
+
             os.chdir(r"C:\xampp\mysql\bin")
             time.sleep(0.5)
             SQLBackup.createConnection()
