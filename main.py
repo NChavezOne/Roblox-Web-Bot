@@ -974,7 +974,7 @@ global stop_threads
 if __name__ == "__main__":
     
     #Global defines and setting
-    
+    #VSCode says alot of these are defined before global declaration, however I don't encounter any problems at python runtime.
     global userCreated 
 
     global Global_Iterations
