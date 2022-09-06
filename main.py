@@ -1054,6 +1054,9 @@ if __name__ == "__main__":
                 os.system("py main.py")
                 sys.exit()
             
+            #Next, backup the database if possible.
+            updateSQLServer()
+
             #Get the mode we are operating in.
             global mode_operating
             mode_operating = MySQLConnector.getMode()
