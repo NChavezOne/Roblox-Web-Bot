@@ -117,6 +117,8 @@ def updateSQLServer():
     #On using pyautogui to close them but you can just disable them in the
     #Teamviewer settings
     BACKUP_INTERVAL = 300 #Backup the database every 300 seconds
+    try: backed_up
+    except NameError: backed_up = int(time.time())
     if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
         if (firstCaptcha == True):
             print("Attempting to backup SQL database.")
