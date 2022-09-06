@@ -120,7 +120,7 @@ def updateSQLServer():
     try: backed_up
     except NameError: backed_up = int(time.time())
     if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
-        if (firstCaptcha == True):
+        if (True == True):
             print("Attempting to backup SQL database.")
             
             os.chdir(r"C:\xampp\mysql\bin")
@@ -1057,7 +1057,7 @@ if __name__ == "__main__":
                 sys.exit()
             
             #Next, backup the database if possible.
-            updateSQLServer()
+            #updateSQLServer()
 
             #Get the mode we are operating in.
             global mode_operating

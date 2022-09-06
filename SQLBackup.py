@@ -227,20 +227,6 @@ def clearTables():
 def backupDatabase():
     #Backup the database into a file called backup.sql in the same directory.
     
-    time.sleep(2)
-    time.sleep(0.1)
-    pyautogui.moveTo(943,783) #position of logon button
-    pyautogui.click()
-                
-    time.sleep(0.1)
-    pyautogui.moveTo(152,243) #position of cmd
-    pyautogui.click()
-    pyautogui.click()
-    pyautogui.click()
-    pyautogui.click()
-    pyautogui.click()
-    time.sleep(0.1)
-    
     keyboard.write(f"{sql_password}")
     time.sleep(0.5)
     keyboard.send('enter')
