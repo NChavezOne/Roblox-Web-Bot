@@ -110,6 +110,37 @@ global last_backup
 
 #========================================
 #Operating system related functions
+def updateSQLServer():
+    TEAMVIEWER_POS = (1145,572)
+    #I was having issues with the script stopping on the server,
+    #I thought teamviewer alerts might be messing stuff up so I was planning
+    #On using pyautogui to close them but you can just disable them in the
+    #Teamviewer settings
+    BACKUP_INTERVAL = 300 #Backup the database every 300 seconds
+    if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
+        if (firstCaptcha == True):
+            print("Attempting to backup SQL database.")
+            os.chdir(r"C:\xampp\mysql\bin")
+            time.sleep(0.5)
+            SQLBackup.createConnection()
+            time.sleep(0.5)
+            os.chdir(r"C:\Users\Admin\Desktop\Main")
+
+            pyautogui.moveTo(152,243) #position of cmd
+            pyautogui.click()
+        else:
+            if (int(time.time()) - backed_up > BACKUP_INTERVAL):
+                time.sleep(1)
+                pyautogui.moveTo(152,243) #position of cmd
+                pyautogui.click()
+                time.sleep(1)
+                print("Attempting to backup SQL database.")
+                os.chdir(r"C:\xampp\mysql\bin")
+                time.sleep(0.5)
+                SQLBackup.createConnection()
+                time.sleep(0.5)
+                os.chdir(r"C:\Users\Admin\Desktop\Main")
+                backed_up = int(time.time())
 
 def countFiles(folder):
     count = 0
@@ -926,7 +957,6 @@ def logIntoAccount(username, password):
     
 def pingClient(uuid):
     global our_uuid
-    global backed_up
     if(True):
         uuid = our_uuid
         client_upd = clientUpdater.getCurrentCommit()
@@ -934,35 +964,6 @@ def pingClient(uuid):
             if (MySQLConnector.pingClient(uuid, device_name, git_commit = client_upd[0:5]) == False):
                 clientConnector.connectToSQLClientService()
             print("Client service pinged.")
-
-            if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
-                print("We are the server.")
-                last_backup = (int(time.time())) - backed_up
-                if (last_backup >= 60):
-                    backed_up = int(time.time())
-                    print("Attempting to backup SQL database.")
-                    os.chdir(r"C:\xampp\mysql\bin")
-                    
-                    time.sleep(1)
-                    pyautogui.moveTo(152,243) #position of cmd
-                    pyautogui.click()
-                    time.sleep(1)
-
-                    time.sleep(0.5)
-                    SQLBackup.createConnection()
-                    time.sleep(0.5)
-                    os.chdir(r"C:\Users\Admin\Desktop\Main")
-
-                    time.sleep(1)
-                    pyautogui.moveTo(830,610) #position on browser
-                    pyautogui.click()
-                    time.sleep(1)
-                    
-                else:
-                    print(f"last backup:{last_backup}")
-            else:
-                print("We are not the server.")
-
         except Exception as ex:
             print(ex)
             print("Error pinging client, try again next cycle.")
@@ -975,13 +976,7 @@ if __name__ == "__main__":
     
     #First and foremost, if we are the server we want to attempt a backup or restore if possible
     
-    if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
-        print("Attempting to backup SQL database.")
-        os.chdir(r"C:\xampp\mysql\bin")
-        time.sleep(0.5)
-        SQLBackup.createConnection()
-        time.sleep(0.5)
-        os.chdir(r"C:\Users\Admin\Desktop\Main")
+    updateSQLServer()
     
     #Global defines and setting
     #VSCode says alot of these are defined before global declaration, however I don't encounter any problems at python runtime.
