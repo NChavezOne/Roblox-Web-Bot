@@ -54,16 +54,16 @@ def connectToSQLClientService():
         val = MySQLConnector.checkIfSameIP(external_ip, internal_ip)
         if (MySQLConnector.checkIfClientExists(uuid_global, external_ip, internal_ip) == True):
             #added if else in response to virtual machines
-            if (internal_ip == "10.0.2.15"):
-                file = open(myFile,"w")
-                uuid_global = genUuid()
-                #print(uuid_global)
-                file.write(uuid_global)
-                file.close()
-                MySQLConnector.createNewClient(uuid_global, external_ip, internal_ip)
-            else:
-                print("Pinging client!")
-                MySQLConnector.pingClient(uuid_global, device_name)
+            #if (internal_ip == "10.0.2.15"):
+            #    file = open(myFile,"w")
+            #    uuid_global = genUuid()
+            #    #print(uuid_global)
+            #    file.write(uuid_global)
+            #    file.close()
+            #    MySQLConnector.createNewClient(uuid_global, external_ip, internal_ip)
+            #else:
+            print("Pinging client!")
+            MySQLConnector.pingClient(uuid_global, device_name)
         elif (val != False):
             print("Pinging client!")
             file = open(myFile,"w")
