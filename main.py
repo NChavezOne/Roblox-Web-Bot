@@ -234,6 +234,12 @@ def waitForTextInScope(text):
         if (i >= timeout):
             break
 
+def isTextPresentInScope(text):
+    if ((len(browser.find_elements("xpath", f"//*[contains(text(), '{text}')]"))) >= 1):
+        return True
+    else:
+        return False
+
 #========================================
 #Other Function defines
 
@@ -456,6 +462,10 @@ def sendMessage(message="message"):
     while (isElementPresentByID("postData") != True):
         time.sleep(0.1)
         print("Can't find postData. Refreshing page and trying again.")
+        if (isTextPresentInScope("Bad Request")):
+            print("Roblox returns bad request. Going to group link.")
+            time.sleep(1)
+            browser.get(current_group_link)
         browser.refresh()
         time.sleep(1)
         sendMessage()
