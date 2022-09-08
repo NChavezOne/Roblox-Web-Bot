@@ -1063,7 +1063,7 @@ if __name__ == "__main__":
                 os.system("git pull origin main")
                 cprint.printColor("Pulled latest commit from git.", "GREEN")
                 time.sleep(2)
-                os.system("py main.py")
+                os.system("py watchdog.py")
                 sys.exit()
 
             #Get the mode we are operating in.
@@ -1187,5 +1187,5 @@ if __name__ == "__main__":
             
 
     print("Script was executed 10 times. Running new program.")
-    cmd = "py main.py"
+    cmd = "py watchdog.py"
     os.system(cmd)
