@@ -60,4 +60,8 @@ def clearConsole():
     if os.name in ('nt', 'dos'):  # If Machine is running on Windows, use cls
         command = 'cls'
     os.system(command)
-#clearConsole()
+
+def noNewLine(input):
+    print(input,end='')
+    sys.stdout.flush()
+    return None

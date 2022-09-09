@@ -152,6 +152,15 @@ def testAudioAndFiles():
     print("Testing File exporting.")
     createFileFromData(r"Audio & Spectrograms/",data,"AudioScriptTesting","wav")
 
+def printAllMicsAndNumbers():
+    print("")
+    cprint.printColor("These are the mics on this system:","GREEN")
+    i = 0
+    while (i < len(mics)):
+        cprint.noNewLine(str(i) + ": ")
+        print(mics[i])
+        i += 1
+
 if __name__ == "__main__":
     
     print("Audio script is running as main!")

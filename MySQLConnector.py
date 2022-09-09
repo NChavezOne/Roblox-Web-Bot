@@ -300,6 +300,29 @@ def insertAccount(username, password):
         
         mydb.commit()
         cprint.printColor("Account inserted","CYAN")
+
+def checkAvatar(username):
+    if createConnection():
+        mycursor = mydb.cursor()
+
+        sql = "SELECT avatar FROM robloxaccounts WHERE username = %s"
+        val = (username,)
+        mycursor.execute(sql, val)
+        myresult = mycursor.fetchall()
+        if (len(myresult) <= 0):
+            return 0 #No entry exists
+        else:
+            return myresult[0][0]
+
+def changeAvatar(status, username):
+    if createConnection():
+        mycursor = mydb.cursor()
+
+        sql = "UPDATE robloxaccounts SET avatar = %s WHERE username = %s"
+        val = (status, username)
+        mycursor.execute(sql, val)
+        mydb.commit()
+        cprint.printColor("Avatar status changed.","CYAN")
     
 def Average(lst):
     return sum(lst) / len(lst)

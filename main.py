@@ -41,17 +41,24 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
+# import Action chains 
+from selenium.webdriver.common.action_chains import ActionChains
 
 #==============================
 #Imports for personal local scripts
+
 import cprint
 import machinelearning
+
 import clientConnector
 import clientUpdater
+
 import audio
+
 import MySQLConnector
-import changeCookies
 import SQLBackup
+
+import changeCookies
 
 #==================
 #Global variable defines
@@ -110,6 +117,10 @@ global last_backup
 
 #========================================
 #Operating system related functions
+def clickThat(x,y):
+    pyautogui.moveTo(x,y)
+    pyautogui.click()
+
 def updateSQLServer():
     TEAMVIEWER_POS = (1145,572)
     #I was having issues with the script stopping on the server,
@@ -198,8 +209,8 @@ def isElementPresentByClass(what):
     except NoSuchElementException: return False
     return True
 
-def waitForElement(method, what, **kwargs):
-    timeout = 1
+def waitForElement(method, what):
+    timeout = 3
     if (method == "ID"):
         timeout *= 10
         i = 0
@@ -239,6 +250,9 @@ def isTextPresentInScope(text):
         return True
     else:
         return False
+
+def elementFromText(text):
+    return browser.find_elements("xpath",f"//*[contains(text(), '{text}')]")[0]
 
 #========================================
 #Other Function defines
@@ -976,6 +990,126 @@ def pingClient(uuid):
             print(ex)
             print("Error pinging client, try again next cycle.")
 
+global AVATAR_PANTS 
+AVATAR_PANTS =  r"https://www.roblox.com/catalog/382537569/Black-Jeans"
+global AVATAR_TOP 
+AVATAR_TOP = r"https://www.roblox.com/catalog/607785314/ROBLOX-Jacket"
+global AVATAR_HAT
+AVATAR_HAT = r"https://www.roblox.com/catalog/607702162/Roblox-Baseball-Cap"
+
+def buyIt(what):
+    try:
+        browser.get(what)
+        
+        pyautogui.moveTo(1234,400)
+        pyautogui.click()
+        time.sleep(1)
+
+        pyautogui.moveTo(858,690)
+        pyautogui.click()
+        time.sleep(1)
+
+        checkForCaptcha()
+        cprint.printColor("Purchased.","GREEN")
+    except Exception as ex:
+        print(ex)
+        cprint.printColor("Couldn't purchase, perhaps we already have it?", "RED")
+
+def purchaseClothes():
+    buyIt(AVATAR_PANTS)
+
+    buyIt(AVATAR_TOP)
+
+    buyIt(AVATAR_HAT)
+
+    time.sleep(1)
+    print("All clothes are purchased.")
+
+def clickClothByName(name):
+    browser.switch_to.default_content()
+    i = 0
+    while(isTextPresentInScope(name) != True):
+        time.sleep(0.1)
+        i += 1
+        if (i > 5):
+            cprint.printColor(f"Could not find clothing item {name}")
+            return None
+    try:
+        action = ActionChains(browser)
+        action.move_to_element_with_offset(browser.find_element(By.XPATH,f"//*[contains(text(), '{name}')]"),0,-50).click().perform()
+    except Exception as ex:
+        cprint.printColor(f"Could not click clothing item {name}")
+        print(ex)
+
+def putOnClothes():
+    browser.get(r"https://www.roblox.com/my/avatar")
+    #Wait for page to load
+    time.sleep(2)
+    if (isTextPresentInScope("Failed to load recent items")):
+        browser.refresh()
+
+    mouse.wheel(-1)
+
+    #Take off default Avatar package
+
+    #Male character
+    #clickClothByName("Man Head")
+    clickClothByName("Man Right Leg")
+    clickClothByName("Man Left Leg")
+    clickClothByName("Man Right Arm")
+    clickClothByName("Man Left Arm")
+    clickClothByName("Man Torso")
+    #clickClothByName("Man Face")
+
+    #Female character
+    clickClothByName("Woman Head")
+    clickClothByName("Woman Right Leg")
+    clickClothByName("Woman Left Leg")
+    clickClothByName("Woman Right Arm")
+    clickClothByName("Woman Left Arm")
+    clickClothByName("Woman Torso")
+    clickClothByName("Woman Face")
+
+    #Take off default hair.
+    clickClothByName("Chestnut Bun")
+    clickClothByName("Pal Hair")
+
+    #Put on roblox cap.
+    clickClothByName("Roblox Baseball Cap")
+    #Put on roblox jacket
+    clickClothByName("ROBLOX Jacket")
+    #Put on jeans.
+    clickClothByName("Black Jeans")
+
+    clickThat(1280,386)
+    time.sleep(0.5)
+    clickThat(740,437)
+    print("Scrolling page...")
+    z = 0        
+    while (z < 10):
+        mouse.wheel(-1)
+        z += 1
+    clickThat(1297,701)
+
+    print("Clothes are put on.")
+
+def changeName(name="ROBLOXREWARD"):
+    browser.get("https://www.roblox.com/my/account#!/info")
+    time.sleep(3)
+    clickThat(1415,292)
+    i = 0
+    while (i < 25):
+        time.sleep(0.1)
+        keyboard.send('backspace')
+        i += 1
+    time.sleep(3)
+    pyperclip.copy(name)
+    keyboard.send("ctrl+v")
+    
+    time.sleep(1)
+    clickThat(906,628)
+    time.sleep(3)
+
 global our_uuid
 global unknownErrorCount
 global stop_threads
@@ -1036,8 +1170,13 @@ if __name__ == "__main__":
             else:
                 audio.getCorrectMic()
                 
-    audio.getCorrectMic()
-    #audio.setMic(3)
+    if (clientConnector.get_ip_address() == "10.0.0.2"):
+        audio.printAllMicsAndNumbers()
+        local = input("Which is the correct Mic?")
+        print("Setting...")
+        audio.setMic(int(local))
+    else:
+        audio.getCorrectMic()
     
     #=================================
     #Truncate the cookies folder.
@@ -1129,6 +1268,31 @@ if __name__ == "__main__":
                 except Exception as ex:
                     print(f"Couldn't load cookies. Here's the error message: {ex}")
 
+            #At this point, we should be logged into an account.
+            avatarStatus = MySQLConnector.checkAvatar(userCreated) #Check the status of the avatar
+            print(f"Avatar status is {avatarStatus}")
+            if (avatarStatus == 0):
+                print("Setting account.")
+                purchaseClothes()
+                MySQLConnector.changeAvatar(1,userCreated)
+
+                time.sleep(0.5)
+                putOnClothes()
+                MySQLConnector.changeAvatar(2,userCreated)
+
+                changeName()
+                MySQLConnector.changeAvatar(3,userCreated)
+            elif (avatarStatus == 1):
+                time.sleep(0.5)
+                putOnClothes()
+                MySQLConnector.changeAvatar(2,userCreated)
+
+                changeName()
+                MySQLConnector.changeAvatar(3,userCreated)
+            elif (avatarStatus == 2):
+                changeName()
+                MySQLConnector.changeAvatar(3,userCreated)
+            
             browser.get(current_group_link)
             time.sleep(master_delay)
             
