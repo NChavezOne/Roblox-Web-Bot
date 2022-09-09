@@ -1170,13 +1170,8 @@ if __name__ == "__main__":
             else:
                 audio.getCorrectMic()
                 
-    if (clientConnector.get_ip_address() == "10.0.0.2"):
-        audio.printAllMicsAndNumbers()
-        local = input("Which is the correct Mic?")
-        print("Setting...")
-        audio.setMic(int(local))
-    else:
-        audio.getCorrectMic()
+    
+    audio.getCorrectMic()
     
     #=================================
     #Truncate the cookies folder.
