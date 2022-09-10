@@ -910,10 +910,8 @@ def crackCaptcha(group=False):
                             time.sleep(1)
                     print("Error, couldn't find captchaframe.")
                 print("Error, couldn't find fc-iframe again.")
-    except:
-        print("Captcha checking error")
-        print("No other captchas found.")
-        print("")
+    except Exception as ex:
+        print("Captcha checking error: {ex}")
 
     #Ping client service to let them know we're alvie.
     pingClient(our_uuid)
