@@ -819,8 +819,6 @@ def crackCaptcha(group=False):
     #=======================
     
     correct_one = myGuess  
-    
-    correct_one = 1
 
     keyboard.write(str(correct_one))
     time.sleep(1)
@@ -1204,6 +1202,10 @@ if __name__ == "__main__":
 
     #======================================
     #Testing goes here
+    initSelenium()
+    browser.get("https://www.roblox.com/my/account#!/info")
+    while(True):
+        pass
 
     #======================================
 
