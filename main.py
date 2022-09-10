@@ -1002,7 +1002,7 @@ def testAccount(username, password):
 def changePassword(currentpassword, newpassword):
     browser.get("https://www.roblox.com/my/account#!/info")
     time.sleep(3)
-    clickThat(1415,361)
+    clickThat(1416,361)
     time.sleep(0.5)
     #Current password
     clickThat(704,515)
@@ -1202,10 +1202,6 @@ if __name__ == "__main__":
 
     #======================================
     #Testing goes here
-    initSelenium()
-    browser.get("https://www.roblox.com/my/account#!/info")
-    while(True):
-        pass
 
     #======================================
 
