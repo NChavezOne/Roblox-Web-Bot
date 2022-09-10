@@ -36,6 +36,21 @@ global clientCreated
 clientCreated = True;
 
 #==================================
+def createConnectionToSite():
+    global mydb
+    try:
+        mydb = mysql.connector.connect(
+              host=main_host,
+              user=sql_username,
+              password=sql_password,
+              database="sitedatabase"
+            )
+        return True
+    except Exception as ex:
+        print(f"Could not connect to site database. Reason: {ex}")
+        time.sleep(20)
+        return False
+
 def createConnection():
     global mydb
     try:
@@ -323,10 +338,35 @@ def changeAvatar(status, username):
         mycursor.execute(sql, val)
         mydb.commit()
         cprint.printColor("Avatar status changed.","CYAN")
-    
+
+def returnLatestSubmission():
+    if createConnectionToSite():
+        mycursor = mydb.cursor()
+
+        sql = "SELECT username FROM usersubmissions ORDER BY time DESC LIMIT 1"
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+        if (len(myresult) <= 0):
+            return 0 #No entry exists
+        else:
+            return myresult[0][0]
+
+def returnFullSubmission():
+    if createConnectionToSite():
+        mycursor = mydb.cursor()
+
+        sql = "SELECT * FROM usersubmissions ORDER BY time DESC LIMIT 1"
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+        if (len(myresult) <= 0):
+            return 0 #No entry exists
+        else:
+            return myresult[0]
+            
 def Average(lst):
     return sum(lst) / len(lst)
  
 if __name__ == "__main__":    
     
     print("This is the SQL script running as main!")
+
