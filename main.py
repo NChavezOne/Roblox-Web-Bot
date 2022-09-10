@@ -943,6 +943,7 @@ def sendThreeMessages():
         sendMessage(send_message)
         i += 1
         if (sendPostFlag == True):
+            sendPostFlag = False
             break
         
     y = checkMessage()
