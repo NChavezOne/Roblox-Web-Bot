@@ -1216,7 +1216,7 @@ if __name__ == "__main__":
             current_group = getGroupName()
             current_group_link = browser.current_url
 
-            if (MySQLConnector.getCookieUsers(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group) < 2): #If we have less than 5 cookies
+            if (MySQLConnector.getCookieUsers(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group) < 1): #If we have less than 5 cookies
                 #If we aren't getting ratelimited, create a new account. Otherwise, use on that already exist.
                 infectGroup()
             else:
