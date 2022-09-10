@@ -1147,6 +1147,7 @@ def testUserSubmissionIfPossible():
                 #Somebody submitted something new
                 userSubmission = MySQLConnector.returnLatestSubmission()
                 print(f"New submission to test: {userSubmission}")
+                print(MySQLConnector.returnFullSubmission())
                 username, password = MySQLConnector.returnFullSubmission()
                 if (testAccount(username, password)):
                     #Holy shit, valid account
