@@ -1225,32 +1225,17 @@ if __name__ == "__main__":
                     try: userCreated
                     except NameError: userCreated = "a"
                     while True:
-                        cprint.printColor("Loading cookie...","MAGENTA")
-                        if (len(userCreated) > 1):
-                            toCheckCookie = bytes()
-                            toCheckCookie = MySQLConnector.getCookies(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group)
-                            toCheckCookie = random.choice(toCheckCookie)
-                            toCheck = toCheckCookie[4]
-                            toTest = toCheck
-                            if (toTest != userCreated):
-                                changeCookies.load_cookie_raw(browser, toCheckCookie[3])
-                                userCreated = toTest
-                                time.sleep(1)
-                                browser.refresh()
-                                print(f"Logged into account {userCreated}")
-                                break
-                        else:
-                            toCheckCookie = bytes()
-                            toCheckCookie = MySQLConnector.getCookies(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group)
-                            toCheckCookie = random.choice(toCheckCookie)
-                            toCheck = toCheckCookie[4]
-                            toTest = toCheck
-                            changeCookies.load_cookie_raw(browser, toCheckCookie[3])
-                            userCreated = toTest
-                            time.sleep(1)
-                            browser.refresh()
-                            print(f"Logged into account {userCreated}")
-                            break
+                        toCheckCookie = bytes()
+                        toCheckCookie = MySQLConnector.getCookies(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group)
+                        toCheckCookie = random.choice(toCheckCookie)
+                        toCheck = toCheckCookie[4]
+                        toTest = toCheck
+                        changeCookies.load_cookie_raw(browser, toCheckCookie[3])
+                        userCreated = toTest
+                        time.sleep(1)
+                        browser.refresh()
+                        print(f"Logged into account {userCreated}")
+                        break
                         capcheck = False
                 except Exception as ex:
                     print(f"Couldn't load cookies. Here's the error message: {ex}")
