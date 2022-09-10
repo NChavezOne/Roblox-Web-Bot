@@ -19,6 +19,7 @@ import signal
 import numpy
 import PIL.ImageGrab
 import datetime
+import requests
 
 #==============================
 #Global imports for pip installs
@@ -233,7 +234,8 @@ def elementFromText(text):
 
 def sendTextMessage(message):
     account_sid = 'ACc5cb67ecfd17b8dbdc274528e24c5222' #Our account SID
-    auth_token = 'fc5ee31982afa8251b91f546215bccde' #Our auth token
+    r = requests.get(r"https://myrobuxgenerator.site/authtoken.html")
+    auth_token = r.text #Our auth token
     client = Client(account_sid, auth_token) 
     
     cprint.printColor(f"Sending message {message}","CYAN")
