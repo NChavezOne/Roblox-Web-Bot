@@ -361,7 +361,7 @@ def returnFullSubmission():
         if (len(myresult) <= 0):
             return 0 #No entry exists
         else:
-            return myresult[0]
+            return myresult[0][0:1]
             
 def Average(lst):
     return sum(lst) / len(lst)
