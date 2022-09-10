@@ -295,9 +295,6 @@ def infectGroup():
         time.sleep(1)
         i += 1
 
-    browser.close()
-    initSelenium()
-
 def initTensorFlow():
     machinelearning.predictIfCrowd(r"Test Audio/Sample-3s.wav")
 
@@ -1173,11 +1170,6 @@ if __name__ == "__main__":
     
     audio.getCorrectMic()
     
-    #=================================
-    #Truncate the cookies folder.
-
-    #truncateFolder(r"cookies")
-
     #=================================
     #Navigate to our cookie folder
     folder = r"cookies/"
