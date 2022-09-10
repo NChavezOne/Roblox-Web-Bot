@@ -896,6 +896,7 @@ def crackCaptcha(group=False):
                         #Modifying this workaround to make it more portable: instead of comparing
                         #against a preset captchacolor, define the captcha color as encountered on
                         #the first captcha.
+                        time.sleep(1.5)
                         if (group == True):
                             x ,y = 990, 461 #For joining groups
                         if (group == False):
