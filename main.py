@@ -1079,15 +1079,7 @@ def putOnClothes():
     #Put on jeans.
     clickClothByName("Black Jeans")
 
-    clickThat(1280,386)
-    time.sleep(0.5)
-    clickThat(740,437)
-    print("Scrolling page...")
-    z = 0        
-    while (z < 10):
-        mouse.wheel(-1)
-        z += 1
-    clickThat(1297,701)
+    #Removed changing skin color, a bit buggy
 
     print("Clothes are put on.")
 
