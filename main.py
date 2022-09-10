@@ -261,7 +261,7 @@ def infectGroup():
     global unknownErrorRatelimitFlag
 
     i = MySQLConnector.getCookieUsers(clientConnector.get_external_ip(),clientConnector.get_ip_address(),current_group)
-    while (i < 2):
+    while (i < 1):
         global accountJustCreated
         global userCreated
         browser.close()
