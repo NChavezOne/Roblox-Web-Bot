@@ -7,7 +7,6 @@
 #==============================
 #Global generic imports
 
-from fcntl import DN_DELETE
 import os
 from os.path import exists
 import shutil
