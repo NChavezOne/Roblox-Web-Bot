@@ -471,8 +471,9 @@ def sendMessage(message="message"):
 
     pingClient(our_uuid)
     print("Sending message!")
-   
-    pyperclip.copy(message)
+    
+    decodedmes = message.decode('utf-8')
+    pyperclip.copy(decodedmes)
     while (isElementPresentByID("postData") != True):
         time.sleep(0.1)
         print("Can't find postData. Refreshing page and trying again.")
@@ -1068,7 +1069,6 @@ def putOnClothes():
     clickClothByName("Woman Right Arm")
     clickClothByName("Woman Left Arm")
     clickClothByName("Woman Torso")
-    clickClothByName("Woman Face")
 
     #Take off default hair.
     clickClothByName("Chestnut Bun")
