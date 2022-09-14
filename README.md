@@ -1,10 +1,10 @@
-# Roblox-Spam-Bot
-Spam bot for ROBLOX.
+# Roblox-Web-Bot
+Web bot for the ROBLOX platform.
+
+Automates a variety of web crawling tasks.
 
 Original script started 8/2/22
 Version one completed 8/18/22
-
-Control panel is located at myrobuxgenerator.site/development
 
 Note: Dependencies are
 - ffmpeg.exe and ffprobe.exe for audio recording
